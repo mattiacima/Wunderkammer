@@ -1,0 +1,1186 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#123A63">
+<meta name="description" content="Una rivista personale di articoli scientifici, presi da OpenAlex.">
+<title>Wunderkammer</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23123A63'/%3E%3Cpath d='M20 56C27 40 35 26 46 10' stroke='%23F2F7FB' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M24 47l-9-4M27 40l-10-6M31 33l-9-8M35 26l-7-9M39 20l-4-9M28 44l9 1M32 37l10 0M36 30l9-2M40 23l8-3' stroke='%23F2F7FB' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #F1F4F2;
+  --paper-2: #E6ECEE;
+  --ink: #0F2740;
+  --blue: #1B4F82;
+  --wash: #D9E6F0;
+  --muted: #53636F;
+  --rule: #C6D2DB;
+  --ground: #123A63;
+  --on-ground: #F2F7FB;
+  --err: #A4262C;
+  --serif: 'Literata', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --sans: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --tabs-h: 60px;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0B1C2E; --paper-2: #10263D; --ink: #E3EBF2; --blue: #8FB8E0; --wash: #17334F;
+    --muted: #9CAFC0; --rule: #233F5C; --ground: #0F3152; --on-ground: #EDF4FA; --err: #F2A6A6;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0B1C2E; --paper-2: #10263D; --ink: #E3EBF2; --blue: #8FB8E0; --wash: #17334F;
+  --muted: #9CAFC0; --rule: #233F5C; --ground: #0F3152; --on-ground: #EDF4FA; --err: #F2A6A6;
+  color-scheme: dark;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--sans); font-size: 1rem; line-height: 1.5;
+}
+img, canvas, svg { max-width: 100%; }
+a { color: var(--blue); text-underline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+[hidden] { display: none !important; }
+main { padding-bottom: calc(var(--tabs-h) + 1.5rem); }
+
+/* Masthead: a cyanotype photogram of a fern */
+.mast {
+  position: relative; overflow: hidden; background: var(--ground); color: var(--on-ground);
+  min-height: clamp(210px, 34vh, 300px); display: flex; align-items: flex-end;
+}
+.mast canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.mast-inner { position: relative; width: 100%; max-width: 1120px; margin: 0 auto; padding: 1.25rem 1.25rem 1.5rem; }
+.mast h1 {
+  font-family: var(--serif); font-style: italic; font-weight: 500;
+  font-size: clamp(2.6rem, 11vw, 4.75rem); line-height: 0.95; letter-spacing: -0.015em; margin: 0;
+}
+.mast p { margin: 0.6rem 0 0; max-width: 23ch; font-size: 0.98rem; line-height: 1.4; }
+
+/* Controls */
+.controls { max-width: 1120px; margin: 0 auto; padding: 1.1rem 1.25rem 0.25rem; }
+.chips {
+  display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none;
+  margin: 0 -1.25rem; padding: 0.1rem 1.25rem 0.6rem;
+}
+.chips::-webkit-scrollbar { display: none; }
+@media (min-width: 760px) { .chips { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0 0 0.6rem; } }
+.chip {
+  flex: none; font: inherit; font-size: 0.92rem; line-height: 1.2; cursor: pointer;
+  padding: 0.55rem 0.8rem; border: 1px solid var(--rule); border-radius: 3px;
+  background: transparent; color: var(--muted);
+}
+.chip[aria-pressed="true"] { background: var(--wash); border-color: var(--blue); color: var(--ink); }
+.chip-all { flex: none; font: inherit; font-size: 0.9rem; background: none; border: 0; color: var(--blue); text-decoration: underline; text-underline-offset: 3px; padding: 0.55rem 0.3rem; cursor: pointer; }
+.seg { display: inline-flex; margin-top: 0.35rem; border: 1px solid var(--blue); border-radius: 3px; overflow: hidden; }
+.seg button { font: inherit; font-size: 0.92rem; padding: 0.55rem 0.9rem; background: transparent; color: var(--blue); border: 0; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--blue); }
+.seg button[aria-pressed="true"] { background: var(--blue); color: var(--paper); }
+.toggles { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; font-size: 0.94rem; }
+.toggles label { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 44px; cursor: pointer; }
+input[type="checkbox"] { accent-color: var(--blue); width: 1.15rem; height: 1.15rem; margin: 0; }
+.mode-hint { font-size: 0.88rem; color: var(--muted); margin: 0.45rem 0 0.1rem; }
+
+/* Panels (first run) */
+.panel { max-width: 720px; margin: 1.25rem auto 0; padding: 0 1.25rem; }
+.panel-box { border: 1px solid var(--blue); background: var(--paper-2); padding: 1.25rem 1.25rem 1.1rem; }
+.panel h2, .setting h2 { font-family: var(--serif); font-weight: 600; font-size: 1.3rem; line-height: 1.25; margin: 0 0 0.5rem; }
+.panel p, .panel li { font-size: 0.97rem; }
+.panel ol, .setting ol { padding-left: 1.3rem; margin: 0.6rem 0; }
+.panel li + li, .setting li + li { margin-top: 0.25rem; }
+
+/* Feed */
+.list { max-width: 720px; margin: 0 auto; padding: 0.25rem 1.25rem 0; }
+@media (min-width: 980px) {
+  .list.grid { max-width: 1120px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 3.5rem; }
+}
+.entry { padding: 1.6rem 0 1.8rem; border-top: 1px solid var(--rule); }
+.entry-topic { margin: 0 0 0.4rem; font-size: 0.88rem; font-weight: 700; color: var(--blue); }
+.entry-title { font-family: var(--serif); font-weight: 600; font-size: 1.32rem; line-height: 1.27; margin: 0; overflow-wrap: anywhere; }
+@media (min-width: 760px) { .entry-title { font-size: 1.42rem; } }
+.entry-title a { color: inherit; text-decoration: none; }
+.entry-title a:hover { text-decoration: underline; }
+.entry.is-read .entry-title { color: var(--muted); }
+.entry-authors { margin: 0.45rem 0 0; font-size: 0.92rem; color: var(--muted); }
+.abstract { margin-top: 0.9rem; max-width: 66ch; }
+.abstract p { margin: 0; font-family: var(--serif); font-size: 1.03rem; line-height: 1.66; hyphens: auto; -webkit-hyphens: auto; }
+.abstract.clamped p { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+.linkish { font: inherit; font-size: 0.93rem; background: none; border: 0; padding: 0.45rem 0; color: var(--blue); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+/* Specimen label: where the article comes from */
+.label { display: block; width: fit-content; min-width: 13.5rem; max-width: 100%; margin-top: 1rem; padding: 0.6rem 0.8rem 0.65rem; border: 1px solid var(--blue); background: var(--paper-2); }
+.label p { margin: 0; font-size: 0.87rem; line-height: 1.4; }
+.label .l-journal { font-family: var(--serif); font-style: italic; font-size: 0.98rem; color: var(--ink); }
+.label .l-meta { color: var(--muted); }
+.label .l-oa { color: var(--blue); font-weight: 700; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+.actions.secondary { gap: 0.15rem 0.2rem; margin: 0.5rem 0 0 -0.5rem; }
+.btn {
+  font: inherit; font-size: 0.93rem; line-height: 1.2; display: inline-flex; align-items: center; justify-content: center;
+  min-height: 42px; padding: 0.5rem 0.9rem; border: 1px solid var(--blue); border-radius: 3px;
+  background: transparent; color: var(--blue); text-decoration: none; cursor: pointer;
+}
+.btn.solid { background: var(--blue); color: var(--paper); }
+.btn:disabled { opacity: 0.55; cursor: default; }
+.actions.secondary .btn { border-color: transparent; color: var(--muted); padding: 0.5rem 0.5rem; }
+.actions.secondary .btn[aria-pressed="true"] { color: var(--blue); font-weight: 700; }
+
+.feed-foot { max-width: 720px; margin: 0 auto; padding: 1.25rem 1.25rem 0; text-align: center; }
+.feed-status { margin: 0 0 1rem; color: var(--muted); }
+.feed-status.err { color: var(--err); }
+
+/* Other views */
+.view-head { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 0.75rem; }
+.view-head h1 { font-family: var(--serif); font-weight: 600; font-size: 2rem; line-height: 1.15; margin: 0; }
+.view-head p { margin: 0.4rem 0 0; color: var(--muted); }
+.empty { color: var(--muted); padding: 1.25rem 0; border-top: 1px solid var(--rule); margin: 0; }
+.rows { max-width: 720px; margin: 0 auto; padding: 0 1.25rem; }
+.row { padding: 1rem 0 0.8rem; border-top: 1px solid var(--rule); }
+.row-title { font-family: var(--serif); font-size: 1.08rem; font-weight: 600; line-height: 1.32; color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
+.row-title:hover { text-decoration: underline; }
+.row-meta { margin: 0.3rem 0 0; font-size: 0.88rem; color: var(--muted); }
+
+.settings { max-width: 660px; margin: 0 auto; padding: 0 1.25rem; }
+.setting { padding: 1.5rem 0 1.6rem; border-top: 1px solid var(--rule); }
+.setting p { margin: 0.4rem 0; }
+.note { font-size: 0.88rem; color: var(--muted); }
+.field { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.field input, .field select {
+  flex: 1 1 14rem; min-width: 0; font: inherit; font-size: 1rem; padding: 0.6rem 0.7rem; min-height: 44px;
+  border: 1px solid var(--rule); border-radius: 3px; background: var(--paper-2); color: var(--ink);
+}
+textarea {
+  width: 100%; min-height: 6.5rem; margin-top: 0.6rem; font: inherit; font-size: 0.82rem; line-height: 1.4; padding: 0.6rem 0.7rem;
+  border: 1px solid var(--rule); border-radius: 3px; background: var(--paper-2); color: var(--ink); resize: vertical; word-break: break-all;
+}
+.status { font-size: 0.92rem; color: var(--muted); margin: 0.6rem 0 0; }
+.status.ok { color: var(--blue); }
+.status.err { color: var(--err); }
+.subhead { font-weight: 700; margin-top: 1.25rem !important; }
+
+/* Bottom tabs */
+.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; justify-content: center;
+  background: var(--paper); border-top: 1px solid var(--rule);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.tabs a {
+  flex: 1; max-width: 170px; min-height: var(--tabs-h); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem;
+  font-size: 0.8rem; color: var(--muted); text-decoration: none; border-top: 2px solid transparent; margin-top: -1px;
+}
+.tabs a[aria-current="page"] { color: var(--blue); border-top-color: var(--blue); font-weight: 700; }
+.tabs svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 20;
+  bottom: calc(var(--tabs-h) + env(safe-area-inset-bottom, 0px) + 0.75rem);
+  display: flex; align-items: center; gap: 1rem; max-width: calc(100% - 2rem); width: max-content;
+  background: var(--ink); color: var(--paper); padding: 0.7rem 1rem; border-radius: 4px; font-size: 0.93rem;
+}
+.toast button { font: inherit; font-weight: 700; background: none; border: 0; color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 0.25rem 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<main>
+  <!-- FEED -->
+  <section id="view-feed" aria-label="Feed">
+    <header class="mast">
+      <canvas id="fern" aria-hidden="true"></canvas>
+      <div class="mast-inner">
+        <h1>Wunderkammer</h1>
+        <p>Articoli scientifici da leggere, scelti tra i tuoi interessi.</p>
+      </div>
+    </header>
+
+    <div class="controls">
+      <div class="chips" id="chips" role="group" aria-label="Argomenti"></div>
+      <div class="seg" id="modes" role="group" aria-label="Che articoli mostrare">
+        <button type="button" data-mode="sorpresa">A sorpresa</button>
+        <button type="button" data-mode="recenti">Recenti</button>
+        <button type="button" data-mode="classici">Classici</button>
+      </div>
+      <p class="mode-hint" id="mode-hint"></p>
+      <div class="toggles" role="group" aria-label="Filtri">
+        <label><input type="checkbox" id="t-big"> Grandi riviste</label>
+        <label><input type="checkbox" id="t-oa"> Leggibili gratis</label>
+      </div>
+    </div>
+
+    <div class="panel" id="onboard" hidden>
+      <div class="panel-box">
+        <h2>Collega il catalogo OpenAlex</h2>
+        <p>Gli articoli arrivano da OpenAlex, un catalogo aperto con centinaia di milioni di pubblicazioni scientifiche. Per usarlo serve una chiave gratuita, e si crea in un paio di minuti:</p>
+        <ol>
+          <li>Crea un account gratuito su <a href="https://openalex.org" target="_blank" rel="noopener">openalex.org</a>.</li>
+          <li>Apri la <a href="https://openalex.org/settings/api" target="_blank" rel="noopener">pagina della chiave API</a> e copiala.</li>
+          <li>Incollala qui sotto. Resta salvata su questo dispositivo.</li>
+        </ol>
+        <div class="field">
+          <label class="sr-only" for="ob-key">Chiave OpenAlex</label>
+          <input id="ob-key" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Incolla la chiave">
+          <button class="btn solid" type="button" id="ob-save">Salva chiave</button>
+        </div>
+        <p class="note">Senza chiave puoi fare solo qualche caricamento al giorno. <button class="linkish" type="button" id="ob-skip">Prova senza chiave</button></p>
+      </div>
+    </div>
+
+    <div class="list grid" id="feed-list" aria-live="polite"></div>
+    <div class="feed-foot">
+      <p class="feed-status" id="feed-status"></p>
+      <button class="btn" type="button" id="load-more" hidden>Carica altri articoli</button>
+    </div>
+  </section>
+
+  <!-- SAVED -->
+  <section id="view-salvati" hidden aria-label="Salvati">
+    <div class="view-head"><h1>Salvati</h1><p id="saved-count"></p></div>
+    <div class="list" id="saved-list"></div>
+  </section>
+
+  <!-- READ -->
+  <section id="view-letti" hidden aria-label="Letti">
+    <div class="view-head"><h1>Letti</h1><p id="read-count"></p></div>
+    <div class="rows" id="read-list"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="view-impostazioni" hidden aria-label="Impostazioni">
+    <div class="view-head"><h1>Impostazioni</h1></div>
+    <div class="settings">
+      <div class="setting">
+        <h2>Chiave OpenAlex</h2>
+        <p>Serve per caricare gli articoli. Si crea gratis dalla <a href="https://openalex.org/settings/api" target="_blank" rel="noopener">pagina della chiave API</a> di OpenAlex, dopo aver fatto l'account. Va inserita su ogni dispositivo.</p>
+        <div class="field">
+          <label class="sr-only" for="s-key">Chiave OpenAlex</label>
+          <input id="s-key" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Incolla la chiave">
+          <button class="btn solid" type="button" id="s-key-save">Salva chiave</button>
+          <button class="btn" type="button" id="s-key-del">Rimuovi</button>
+        </div>
+        <p class="status" id="s-key-status"></p>
+      </div>
+
+      <div class="setting">
+        <h2>Telefono e tablet sincronizzati</h2>
+        <p>Salvati, letti e argomenti scelti vengono tenuti in un file sul tuo account GitHub, così ritrovi tutto sull'altro dispositivo.</p>
+        <ol>
+          <li>Crea un account gratuito su <a href="https://github.com/signup" target="_blank" rel="noopener">GitHub</a>.</li>
+          <li>Crea un <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Wunderkammer" target="_blank" rel="noopener">token con il solo permesso «gist»</a>. Come scadenza puoi scegliere «No expiration».</li>
+          <li>Incolla lo stesso token qui, sia sul telefono sia sul tablet.</li>
+        </ol>
+        <div class="field">
+          <label class="sr-only" for="s-gh">Token GitHub</label>
+          <input id="s-gh" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Incolla il token">
+          <button class="btn solid" type="button" id="s-gh-save">Collega</button>
+        </div>
+        <div class="actions" id="s-gh-actions" hidden>
+          <button class="btn" type="button" id="s-gh-sync">Sincronizza ora</button>
+          <button class="btn" type="button" id="s-gh-del">Scollega</button>
+        </div>
+        <p class="status" id="s-gh-status"></p>
+        <p class="note">Il file è un gist «segreto»: non compare nelle ricerche, ma chi ne avesse il link potrebbe aprirlo. Contiene solo titoli e stato degli articoli, mai le chiavi.</p>
+
+        <p class="subhead">Senza GitHub</p>
+        <p>Copia un codice da qui e incollalo sull'altro dispositivo. I dati vengono uniti, niente va perso.</p>
+        <div class="actions">
+          <button class="btn" type="button" id="code-share">Condividi codice</button>
+        </div>
+        <textarea id="code-out" readonly hidden aria-label="Codice da copiare"></textarea>
+        <label class="sr-only" for="code-in">Codice dall'altro dispositivo</label>
+        <textarea id="code-in" placeholder="Incolla qui il codice dell'altro dispositivo"></textarea>
+        <div class="actions"><button class="btn" type="button" id="code-merge">Unisci codice</button></div>
+        <p class="status" id="code-status"></p>
+      </div>
+
+      <div class="setting">
+        <h2>Aspetto</h2>
+        <div class="field">
+          <label class="sr-only" for="s-theme">Tema</label>
+          <select id="s-theme">
+            <option value="auto">Tema come il sistema</option>
+            <option value="light">Tema chiaro</option>
+            <option value="dark">Tema scuro</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting">
+        <h2>Grandi riviste</h2>
+        <p class="note" id="journal-list"></p>
+      </div>
+
+      <div class="setting">
+        <h2>Dati su questo dispositivo</h2>
+        <p>Cancella letti, salvati, argomenti, chiave e collegamento a GitHub da questo dispositivo. Il file su GitHub resta.</p>
+        <div class="actions"><button class="btn" type="button" id="s-wipe">Cancella tutto</button></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs" aria-label="Sezioni">
+  <a href="#feed" data-view="feed"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Feed</a>
+  <a href="#salvati" data-view="salvati"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v18l-5-4-5 4z"/></svg>Salvati</a>
+  <a href="#letti" data-view="letti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>Letti</a>
+  <a href="#impostazioni" data-view="impostazioni"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Impostazioni</a>
+</nav>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- Configuration ---------- */
+const API = 'https://api.openalex.org';
+const SELECT = 'id,doi,display_name,publication_year,primary_location,authorships,cited_by_count,abstract_inverted_index,open_access,best_oa_location';
+const PER_PAGE = 8;
+
+// OpenAlex field ids: 11 Agricultural & Biological Sciences, 12 Arts & Humanities, 13 Biochemistry & Genetics,
+// 16 Chemistry, 23 Environmental Science, 28 Neuroscience, 32 Psychology, 33 Social Sciences
+const TOPICS = [
+  { id: 'zoo', name: 'Zoologia', fields: '11', q: 'zoology OR invertebrates OR insects OR birds OR mammals OR amphibians OR reptiles OR cephalopods OR "marine animals"' },
+  { id: 'eto', name: 'Etologia', fields: '11|28|32', q: 'ethology OR "animal behaviour" OR "animal behavior" OR "animal cognition" OR "animal communication"' },
+  { id: 'eco', name: 'Ecologia', fields: '11|23', q: 'ecology OR ecosystem OR biodiversity OR "food web" OR "species interactions"' },
+  { id: 'evo', name: 'Evoluzione', fields: '11|13', q: 'evolution OR "natural selection" OR speciation OR phylogeny OR "sexual selection"' },
+  { id: 'gen', name: 'Genetica', fields: '13|11', q: 'genetics OR genome OR heredity OR "gene expression" OR "population genetics"' },
+  { id: 'bot', name: 'Biologia vegetale', fields: '11|13', q: 'plants OR botany OR photosynthesis OR pollination OR flowering' },
+  { id: 'neu', name: 'Neuroscienze e comportamento', fields: '28|11|32', q: '(brain OR neurons OR "neural circuits" OR "nervous system") AND (behavior OR behaviour)' },
+  { id: 'ana', name: 'Anatomia e fisiologia', fields: '11|13|28', q: 'anatomy OR morphology OR physiology OR biomechanics OR "comparative anatomy"' },
+  { id: 'chi', name: 'Chimica della natura', fields: '16|13|11', q: '"natural products" OR "chemical ecology" OR pheromones OR venom OR biosynthesis OR "plant metabolites"' },
+  { id: 'psi', name: 'Psicologia', fields: '32|28', q: 'psychology OR cognition OR emotion OR memory OR perception OR "decision making"' },
+  { id: 'sts', name: 'Storia della scienza', fields: '12|33|11', q: '"history of science" OR "natural history" OR naturalist OR Darwin OR "scientific revolution"' },
+  { id: 'art', name: 'Scienza e arte', fields: '', q: '"scientific illustration" OR "botanical illustration" OR "art and science" OR "science and art" OR bioart OR neuroaesthetics OR "aesthetic experience"' },
+  { id: 'sto', name: 'Storia', fields: '12', q: 'history OR historical OR ancient OR medieval OR archaeology' }
+];
+
+const JOURNALS = [
+  ['Nature', '0028-0836', '1476-4687'], ['Science', '0036-8075', '1095-9203'], ['PNAS', '0027-8424', '1091-6490'],
+  ['Cell', '0092-8674', '1097-4172'], ['Current Biology', '0960-9822', '1879-0445'], ['PLOS Biology', '1544-9173', '1545-7885'],
+  ['eLife', '2050-084X'], ['Science Advances', '2375-2548'], ['Nature Communications', '2041-1723'],
+  ['Nature Ecology & Evolution', '2397-334X'], ['Nature Neuroscience', '1097-6256', '1546-1726'], ['Nature Genetics', '1061-4036', '1546-1718'],
+  ['Nature Human Behaviour', '2397-3374'], ['Neuron', '0896-6273', '1097-4199'], ['Proceedings of the Royal Society B', '0962-8452', '1471-2954'],
+  ['Philosophical Transactions of the Royal Society B', '0962-8436', '1471-2970'], ['Biology Letters', '1744-9561', '1744-957X'],
+  ['Trends in Ecology & Evolution', '0169-5347'], ['Ecology Letters', '1461-023X', '1461-0248'], ['Animal Behaviour', '0003-3472', '1095-8282'],
+  ['New Phytologist', '0028-646X', '1469-8137'], ['Molecular Biology and Evolution', '0737-4038', '1537-1719'],
+  ['Psychological Science', '0956-7976', '1467-9280'], ['Journal of the American Chemical Society', '0002-7863', '1520-5126'],
+  ['Nature Chemistry', '1755-4330', '1755-4349'], ['Isis', '0021-1753', '1545-6994'],
+  ['The British Journal for the History of Science', '0007-0874', '1474-001X'], ['Leonardo', '0024-094X', '1530-9282']
+];
+const ISSNS = JOURNALS.flatMap(j => j.slice(1)).join('|');
+
+const MODES = {
+  sorpresa: 'Articoli già citati da molti, pescati a caso tra i più pertinenti.',
+  recenti: 'Usciti negli ultimi 18 mesi, prima quelli di cui si parla di più.',
+  classici: 'I più citati di sempre, dal primo in giù, usciti da almeno tre anni.'
+};
+
+const GIST_DESC = 'Wunderkammer: sincronizzazione articoli';
+const GIST_FILE = 'wunderkammer.json';
+
+/* ---------- Storage ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+const defaultPrefs = () => ({ t: 0, topics: TOPICS.map(t => t.id), mode: 'sorpresa', big: false, oa: false });
+
+let state = store.get('wk-state', null);
+if (!state || typeof state !== 'object' || !state.items || typeof state.items !== 'object') state = { items: {}, prefs: defaultPrefs() };
+state.prefs = cleanPrefs(state.prefs) || defaultPrefs();
+let apiKey = store.get('wk-key', '') || '';
+let keyless = !!store.get('wk-keyless', false);
+let gh = store.get('wk-gh', null) || { token: '', gist: '', last: 0 };
+let meta = store.get('wk-meta', null) || { counts: {}, next: {}, minimal: false };
+if (!meta.counts) meta.counts = {};
+if (!meta.next) meta.next = {};
+
+function persist() { store.set('wk-state', state); }
+function saveState() { persist(); scheduleSync(); }
+
+/* ---------- Helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+function btn(text, cls = 'btn') { const b = el('button', cls, text); b.type = 'button'; return b; }
+function linkBtn(text, href, cls = 'btn') {
+  const a = el('a', cls, text);
+  a.href = safeUrl(href) || '#'; a.target = '_blank'; a.rel = 'noopener';
+  return a;
+}
+function safeUrl(u) { return typeof u === 'string' && /^https?:\/\//i.test(u) ? u : null; }
+function decodeEntities(s) { const t = document.createElement('textarea'); t.innerHTML = s; return t.value; }
+function cleanText(s) {
+  if (!s) return '';
+  s = String(s).replace(/<[^>]*>/g, ' ');
+  s = decodeEntities(s).replace(/\s+/g, ' ').trim();
+  return s.replace(/^(abstract|summary|riassunto)[\s:.\-–—]+/i, '');
+}
+const fmtNum = n => Number(n || 0).toLocaleString('it-IT');
+const fmtDate = ts => new Date(ts).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+const fmtTime = ts => new Date(ts).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+function isoDaysAgo(days) { const d = new Date(Date.now() - days * 864e5); return d.toISOString().slice(0, 10); }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function cleanPrefs(p) {
+  if (!p || typeof p !== 'object') return null;
+  const ids = TOPICS.map(t => t.id);
+  return {
+    t: Number(p.t) || 0,
+    topics: Array.isArray(p.topics) ? p.topics.filter(x => ids.includes(x)) : ids,
+    mode: MODES[p.mode] ? p.mode : 'sorpresa',
+    big: !!p.big, oa: !!p.oa
+  };
+}
+
+/* ---------- Toast ---------- */
+let toastTimer;
+function toast(msg, actionText, action) {
+  const t = $('#toast');
+  t.textContent = '';
+  t.append(el('span', null, msg));
+  if (actionText) {
+    const b = btn(actionText, '');
+    b.onclick = () => { t.hidden = true; action(); };
+    t.append(b);
+  }
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.hidden = true; }, 5500);
+}
+
+/* ---------- Article records ---------- */
+function rec(id) { return state.items[id]; }
+function isKnown(id) { const r = rec(id); return !!(r && (r.read || r.hidden || r.saved)); }
+
+function setFlag(item, flag, value) {
+  const cur = rec(item.id) || {};
+  const next = Object.assign({}, cur, { id: item.id, t: Date.now() });
+  next[flag] = !!value;
+  if (flag === 'read') next.readAt = value ? Date.now() : null;
+  const m = Object.assign({}, cur.m || {}, item);
+  if (!next.saved) delete m.abstract;
+  next.m = m;
+  state.items[item.id] = next;
+  saveState();
+  return next;
+}
+
+/* ---------- OpenAlex ---------- */
+function qkey(t) { const p = state.prefs; return [t.id, p.mode, p.big ? 'b' : '', p.oa ? 'o' : ''].join('|'); }
+
+function buildUrl(t, page, per, minimal) {
+  const p = state.prefs;
+  const f = ['type:article|review', 'has_abstract:true'];
+  if (!minimal) f.push('is_retracted:false', 'is_paratext:false', 'language:en|it');
+  if (t.fields) f.push('primary_topic.field.id:' + t.fields);
+  let sort = '';
+  if (p.mode === 'sorpresa') f.push('cited_by_count:>40');
+  if (p.mode === 'recenti') { f.push('from_publication_date:' + isoDaysAgo(548)); sort = 'cited_by_count:desc'; }
+  if (p.mode === 'classici') { f.push('to_publication_date:' + isoDaysAgo(3 * 365)); sort = 'cited_by_count:desc'; }
+  if (p.big) f.push('primary_location.source.issn:' + ISSNS);
+  if (p.oa) f.push('open_access.is_oa:true');
+  const parts = [['search', t.q], ['filter', f.join(',')], ['per_page', per], ['page', page]];
+  if (sort) parts.push(['sort', sort]);
+  if (!minimal) parts.push(['select', SELECT]);
+  if (apiKey) parts.push(['api_key', apiKey]);
+  return API + '/works?' + parts.map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&');
+}
+
+async function getJSON(url) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 20000);
+  let r;
+  try { r = await fetch(url, { signal: ctl.signal }); }
+  catch (e) { throw { kind: 'net' }; }
+  finally { clearTimeout(timer); }
+  if (r.status === 401 || r.status === 403) throw { kind: 'key' };
+  if (r.status === 402 || r.status === 409 || r.status === 429) throw { kind: 'limit' };
+  if (!r.ok) throw { kind: 'http', status: r.status };
+  return r.json();
+}
+
+async function query(t, page, per) {
+  try { return await getJSON(buildUrl(t, page, per, meta.minimal)); }
+  catch (e) {
+    if (e && e.kind === 'http' && e.status === 400 && !meta.minimal) {
+      meta.minimal = true;
+      return await getJSON(buildUrl(t, page, per, true));
+    }
+    throw e;
+  }
+}
+
+function pickPage(key, mode) {
+  if (mode === 'classici') return meta.next[key] || 1;
+  const count = meta.counts[key];
+  const maxPages = mode === 'sorpresa' ? 50 : 12;
+  if (count == null) return 1 + Math.floor(Math.random() * 3);
+  const pages = Math.max(1, Math.min(maxPages, Math.ceil(count / PER_PAGE)));
+  return 1 + Math.floor(Math.random() * pages);
+}
+
+async function fetchTopic(t) {
+  const mode = state.prefs.mode, key = qkey(t);
+  let page = pickPage(key, mode);
+  let data = await query(t, page, PER_PAGE);
+  if ((!data.results || !data.results.length) && page > 1) { page = 1; data = await query(t, 1, PER_PAGE); }
+  const results = data.results || [];
+  if (data.meta && typeof data.meta.count === 'number') meta.counts[key] = data.meta.count;
+  if (mode === 'classici') meta.next[key] = results.length < PER_PAGE ? 1 : page + 1;
+  return results.map(r => toItem(r, t)).filter(it => it.id && it.title);
+}
+
+function abstractFrom(inv) {
+  if (!inv || typeof inv !== 'object') return '';
+  const words = [];
+  for (const [w, positions] of Object.entries(inv)) for (const p of positions) words[p] = w;
+  return words.filter(Boolean).join(' ');
+}
+
+function fmtAuthors(auth) {
+  const names = (auth || []).map(a => a && a.author && a.author.display_name).filter(Boolean);
+  if (!names.length) return '';
+  if (names.length <= 3) return names.join(', ');
+  return names.slice(0, 2).join(', ') + ' e altri ' + (names.length - 2);
+}
+
+function toItem(r, t) {
+  const pl = r.primary_location || {};
+  const url = safeUrl(r.doi) || safeUrl(pl.landing_page_url) || safeUrl(r.id);
+  let pdf = (r.best_oa_location && safeUrl(r.best_oa_location.pdf_url)) || (r.open_access && safeUrl(r.open_access.oa_url)) || null;
+  if (pdf && pdf === url) pdf = null;
+  return {
+    id: String(r.id || '').replace('https://openalex.org/', ''),
+    title: cleanText(r.display_name),
+    journal: cleanText(pl.source && pl.source.display_name),
+    year: r.publication_year || null,
+    authors: fmtAuthors(r.authorships),
+    url, pdf,
+    cites: typeof r.cited_by_count === 'number' ? r.cited_by_count : null,
+    oa: !!(r.open_access && r.open_access.is_oa),
+    topic: t.name,
+    abstract: cleanText(abstractFrom(r.abstract_inverted_index))
+  };
+}
+
+function errorCopy(e) {
+  if (e && e.kind === 'key') return 'OpenAlex non accetta la chiave. Controllala in Impostazioni.';
+  if (e && e.kind === 'limit') return apiKey
+    ? 'Hai usato tutte le richieste gratuite di oggi. Si ricaricano domani.'
+    : 'Le richieste senza chiave sono finite per oggi. Aggiungi una chiave gratuita in Impostazioni per averne molte di più.';
+  if (e && e.kind === 'http') return 'OpenAlex ha risposto con un errore (' + e.status + '). Riprova tra poco.';
+  return 'Non riesco a raggiungere OpenAlex. Controlla la connessione e riprova.';
+}
+
+/* ---------- Feed ---------- */
+let shown = new Set(), feedCount = 0, loading = false, feedGen = 0, lastPicked = [], feedError = false;
+
+function pickTopics(sel, n) {
+  const fresh = sel.filter(t => !lastPicked.includes(t.id));
+  const pool = (fresh.length >= n ? fresh : sel).slice();
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const picks = pool.slice(0, n);
+  lastPicked = picks.map(t => t.id);
+  return picks;
+}
+
+function interleave(lists) {
+  const out = [];
+  const max = Math.max(0, ...lists.map(l => l.length));
+  for (let i = 0; i < max; i++) for (const l of lists) if (l[i]) out.push(l[i]);
+  return out;
+}
+
+function setFeedStatus(msg, opts = {}) {
+  const s = $('#feed-status');
+  s.textContent = msg || '';
+  s.classList.toggle('err', !!opts.err);
+  const more = $('#load-more');
+  more.hidden = !opts.more;
+  more.textContent = opts.retry ? 'Riprova' : 'Carica altri articoli';
+}
+
+function updateOnboard() {
+  $('#onboard').hidden = !!(apiKey || keyless);
+}
+
+function resetFeed() {
+  feedGen++; loading = false; shown = new Set(); feedCount = 0; feedError = false;
+  $('#feed-list').textContent = '';
+  setFeedStatus('');
+  loadMore();
+}
+
+async function loadMore() {
+  if (loading) return;
+  updateOnboard();
+  if (!apiKey && !keyless) { setFeedStatus(''); return; }
+  const sel = TOPICS.filter(t => state.prefs.topics.includes(t.id));
+  if (!sel.length) { setFeedStatus('Scegli almeno un argomento qui sopra.'); return; }
+  loading = true; feedError = false;
+  const gen = feedGen;
+  setFeedStatus('Cerco articoli…');
+  const added = [];
+  let err = null;
+  for (let attempt = 0; attempt < 3 && added.length < 5; attempt++) {
+    const picks = pickTopics(sel, Math.min(2, sel.length));
+    const settled = await Promise.allSettled(picks.map(fetchTopic));
+    if (gen !== feedGen) return;
+    const ok = settled.filter(s => s.status === 'fulfilled').map(s => s.value);
+    if (!ok.length) { err = settled[0].reason; break; }
+    for (const it of interleave(ok)) {
+      if (shown.has(it.id) || isKnown(it.id)) continue;
+      shown.add(it.id);
+      added.push(it);
+    }
+  }
+  store.set('wk-meta', meta);
+  loading = false;
+  if (gen !== feedGen) return;
+  const list = $('#feed-list');
+  for (const it of added) list.append(entryEl(it, 'feed'));
+  feedCount += added.length;
+  if (err && !added.length) { feedError = true; setFeedStatus(errorCopy(err), { err: true, more: true, retry: true }); }
+  else if (!added.length) setFeedStatus(feedCount ? 'Per ora non trovo altri articoli nuovi con questi filtri.' : 'Nessun articolo nuovo con questi filtri. Prova a togliere un filtro o ad aggiungere argomenti.', { more: true, retry: true });
+  else setFeedStatus('', { more: true });
+}
+
+/* ---------- Article entry ---------- */
+function translateUrl(text) {
+  return 'https://translate.google.com/?sl=auto&tl=it&op=translate&text=' + encodeURIComponent(text.slice(0, 4500));
+}
+function scholarUrl(title) { return 'https://scholar.google.com/scholar?q=' + encodeURIComponent('"' + title + '"'); }
+
+function entryEl(item, ctx) {
+  const art = el('article', 'entry');
+  const r = rec(item.id) || {};
+  if (r.read) art.classList.add('is-read');
+  if (item.topic) art.append(el('p', 'entry-topic', item.topic));
+
+  const h = el('h2', 'entry-title');
+  const a = el('a', null, item.title || 'Senza titolo');
+  a.href = safeUrl(item.url) || '#'; a.target = '_blank'; a.rel = 'noopener';
+  h.append(a); art.append(h);
+  if (item.authors) art.append(el('p', 'entry-authors', item.authors));
+
+  if (item.abstract) {
+    const ab = el('div', 'abstract');
+    const p = el('p', null, item.abstract); p.lang = 'en';
+    ab.append(p); art.append(ab);
+    if (item.abstract.length > 420) {
+      ab.classList.add('clamped');
+      const more = btn("Leggi tutto l'abstract", 'linkish');
+      more.setAttribute('aria-expanded', 'false');
+      more.onclick = () => {
+        const clamped = ab.classList.toggle('clamped');
+        more.textContent = clamped ? "Leggi tutto l'abstract" : 'Riduci';
+        more.setAttribute('aria-expanded', String(!clamped));
+      };
+      art.append(more);
+    }
+  }
+
+  const label = el('div', 'label');
+  label.append(el('p', 'l-journal', item.journal || 'Rivista non indicata'));
+  const bits = [];
+  if (item.year) bits.push(String(item.year));
+  if (item.cites != null) bits.push(item.cites === 1 ? 'citato 1 volta' : 'citato ' + fmtNum(item.cites) + ' volte');
+  if (bits.length) label.append(el('p', 'l-meta', bits.join(', ')));
+  if (item.oa) label.append(el('p', 'l-oa', 'Leggibile gratis'));
+  art.append(label);
+
+  const readBtn = btn('', 'btn');
+  const syncRead = () => {
+    const on = !!(rec(item.id) || {}).read;
+    readBtn.textContent = on ? 'Letto' : 'Segna letto';
+    readBtn.setAttribute('aria-pressed', String(on));
+    art.classList.toggle('is-read', on);
+  };
+  const markRead = () => { if (!(rec(item.id) || {}).read) { setFlag(item, 'read', true); syncRead(); } };
+
+  const primary = el('div', 'actions');
+  const open = linkBtn('Apri articolo', item.url, 'btn solid');
+  primary.append(open);
+  if (item.pdf) primary.append(linkBtn('Versione gratuita', item.pdf));
+  else if (item.title) primary.append(linkBtn('Cerca su Scholar', scholarUrl(item.title)));
+  for (const link of primary.querySelectorAll('a')) link.addEventListener('click', markRead);
+  a.addEventListener('click', markRead);
+  art.append(primary);
+
+  const sec = el('div', 'actions secondary');
+  const saveBtn = btn('', 'btn');
+  const syncSave = () => {
+    const on = !!(rec(item.id) || {}).saved;
+    saveBtn.textContent = on ? 'Salvato' : 'Salva';
+    saveBtn.setAttribute('aria-pressed', String(on));
+  };
+  saveBtn.onclick = () => {
+    const on = !(rec(item.id) || {}).saved;
+    setFlag(item, 'saved', on);
+    syncSave();
+    if (ctx === 'saved' && !on) {
+      art.remove(); updateSavedCount();
+      toast('Tolto dai salvati.', 'Annulla', () => { setFlag(item, 'saved', true); renderSaved(); });
+    } else if (on) toast('Salvato. Lo trovi in Salvati.');
+  };
+  readBtn.onclick = () => { setFlag(item, 'read', !(rec(item.id) || {}).read); syncRead(); };
+  sec.append(saveBtn, readBtn);
+  if (item.abstract) sec.append(linkBtn('Traduci', translateUrl(item.abstract), 'btn'));
+  if (ctx === 'feed') {
+    const hide = btn('Nascondi', 'btn');
+    hide.onclick = () => {
+      const next = art.nextSibling, parent = art.parentNode;
+      setFlag(item, 'hidden', true);
+      art.remove();
+      toast('Non lo vedrai più.', 'Annulla', () => {
+        setFlag(item, 'hidden', false);
+        if (parent) parent.insertBefore(art, next && next.parentNode === parent ? next : null);
+      });
+    };
+    sec.append(hide);
+  }
+  art.append(sec);
+  syncSave(); syncRead();
+  return art;
+}
+
+/* ---------- Saved & read views ---------- */
+function savedItems() { return Object.values(state.items).filter(r => r && r.saved && r.m).sort((a, b) => (b.t || 0) - (a.t || 0)); }
+function updateSavedCount() {
+  const n = savedItems().length;
+  $('#saved-count').textContent = n ? (n === 1 ? '1 articolo da leggere con calma.' : n + ' articoli da leggere con calma.') : '';
+}
+function renderSaved() {
+  const list = $('#saved-list');
+  list.textContent = '';
+  const items = savedItems();
+  updateSavedCount();
+  if (!items.length) { list.append(el('p', 'empty', 'Ancora niente. Nel feed, tocca «Salva» sugli articoli che vuoi tenere da parte.')); return; }
+  for (const r of items) list.append(entryEl(r.m, 'saved'));
+}
+
+function renderRead() {
+  const list = $('#read-list');
+  list.textContent = '';
+  const items = Object.values(state.items).filter(r => r && r.read && r.m).sort((a, b) => (b.readAt || b.t || 0) - (a.readAt || a.t || 0));
+  $('#read-count').textContent = items.length ? (items.length === 1 ? '1 articolo letto. Non tornerà nel feed.' : items.length + ' articoli letti. Non torneranno nel feed.') : '';
+  if (!items.length) { list.append(el('p', 'empty', 'Quando apri un articolo o lo segni come letto, compare qui e non torna più nel feed.')); return; }
+  for (const r of items) {
+    const m = r.m;
+    const row = el('div', 'row');
+    const a = el('a', 'row-title', m.title || 'Senza titolo');
+    a.href = safeUrl(m.url) || '#'; a.target = '_blank'; a.rel = 'noopener';
+    row.append(a);
+    const bits = [m.journal, m.year].filter(Boolean).join(', ');
+    row.append(el('p', 'row-meta', (bits ? bits + '. ' : '') + 'Letto il ' + fmtDate(r.readAt || r.t) + '.'));
+    const undo = btn('Rimetti tra i non letti', 'linkish');
+    undo.onclick = () => { setFlag(m, 'read', false); renderRead(); toast('Può tornare nel feed.'); };
+    row.append(undo);
+    list.append(row);
+  }
+}
+
+/* ---------- Controls ---------- */
+let prefTimer;
+function prefsChanged(delay) {
+  state.prefs.t = Date.now();
+  saveState();
+  clearTimeout(prefTimer);
+  prefTimer = setTimeout(resetFeed, delay || 0);
+}
+
+function renderControls() {
+  const chips = $('#chips');
+  chips.textContent = '';
+  for (const t of TOPICS) {
+    const b = btn(t.name, 'chip');
+    b.setAttribute('aria-pressed', String(state.prefs.topics.includes(t.id)));
+    b.onclick = () => {
+      const on = state.prefs.topics.includes(t.id);
+      state.prefs.topics = on ? state.prefs.topics.filter(x => x !== t.id) : state.prefs.topics.concat(t.id);
+      b.setAttribute('aria-pressed', String(!on));
+      updateAllChip();
+      prefsChanged(800);
+    };
+    chips.append(b);
+  }
+  const all = btn('', 'chip-all');
+  all.id = 'chip-all';
+  all.onclick = () => {
+    const everything = state.prefs.topics.length === TOPICS.length;
+    state.prefs.topics = everything ? [] : TOPICS.map(t => t.id);
+    renderControls();
+    prefsChanged(everything ? 0 : 300);
+  };
+  chips.append(all);
+  updateAllChip();
+
+  for (const b of document.querySelectorAll('#modes button')) b.setAttribute('aria-pressed', String(b.dataset.mode === state.prefs.mode));
+  $('#mode-hint').textContent = MODES[state.prefs.mode];
+  $('#t-big').checked = state.prefs.big;
+  $('#t-oa').checked = state.prefs.oa;
+}
+function updateAllChip() {
+  const b = $('#chip-all');
+  if (b) b.textContent = state.prefs.topics.length === TOPICS.length ? 'Togli tutti' : 'Scegli tutti';
+}
+
+/* ---------- Sync (GitHub gist) ---------- */
+let syncing = false, syncAgain = false, syncTimer = null;
+function scheduleSync() {
+  if (!gh.token) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncNow, 4000);
+}
+function serialize() { return JSON.stringify({ v: 1, app: 'wunderkammer', items: state.items, prefs: state.prefs }); }
+
+function cleanRecord(id, r) {
+  if (!r || typeof r !== 'object' || typeof id !== 'string' || !/^W\d+$/.test(id)) return null;
+  const m = r.m && typeof r.m === 'object' ? r.m : {};
+  const str = v => (typeof v === 'string' ? v.slice(0, 6000) : '');
+  const out = {
+    id, t: Number(r.t) || 0, read: !!r.read, saved: !!r.saved, hidden: !!r.hidden,
+    readAt: Number(r.readAt) || null,
+    m: {
+      id, title: str(m.title), journal: str(m.journal), authors: str(m.authors), topic: str(m.topic),
+      url: safeUrl(m.url), pdf: safeUrl(m.pdf), year: Number(m.year) || null,
+      cites: typeof m.cites === 'number' ? m.cites : null, oa: !!m.oa
+    }
+  };
+  if (out.saved && m.abstract) out.m.abstract = str(m.abstract);
+  return out;
+}
+
+function mergeIn(data) {
+  const res = { changed: 0, prefs: false };
+  if (!data || typeof data !== 'object' || !data.items || typeof data.items !== 'object') return res;
+  for (const [id, raw] of Object.entries(data.items)) {
+    const r = cleanRecord(id, raw);
+    if (!r) continue;
+    const l = state.items[id];
+    if (!l || r.t > (l.t || 0)) { state.items[id] = r; res.changed++; }
+  }
+  const p = cleanPrefs(data.prefs);
+  if (p && p.t > (state.prefs.t || 0)) { state.prefs = p; res.prefs = true; res.changed++; }
+  return res;
+}
+
+function afterMerge(res) {
+  if (!res.changed) return;
+  if (res.prefs) renderControls();
+  const view = currentView();
+  if (view === 'salvati') renderSaved();
+  if (view === 'letti') renderRead();
+  if (res.prefs && view === 'feed' && started) resetFeed();
+}
+let started = false;
+
+async function ghFetch(path, opts = {}) {
+  const headers = { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + gh.token };
+  if (opts.body) headers['Content-Type'] = 'application/json';
+  let r;
+  try { r = await fetch('https://api.github.com' + path, Object.assign({}, opts, { headers, cache: 'no-store' })); }
+  catch (e) { throw { kind: 'net' }; }
+  if (!r.ok) throw { kind: 'http', status: r.status };
+  return r.status === 204 ? null : r.json();
+}
+
+async function findOrCreateGist() {
+  for (let page = 1; page <= 5; page++) {
+    const list = await ghFetch('/gists?per_page=100&page=' + page);
+    const g = (list || []).find(x => x.description === GIST_DESC && x.files && x.files[GIST_FILE]);
+    if (g) return g.id;
+    if (!list || list.length < 100) break;
+  }
+  const created = await ghFetch('/gists', {
+    method: 'POST',
+    body: JSON.stringify({ description: GIST_DESC, public: false, files: { [GIST_FILE]: { content: serialize() } } })
+  });
+  return created.id;
+}
+
+function ghErrorCopy(e) {
+  if (e && e.kind === 'http' && e.status === 401) return 'GitHub non accetta il token: forse è scaduto o incompleto. Creane uno nuovo.';
+  if (e && e.kind === 'http' && (e.status === 403 || e.status === 404)) return 'Il token non ha il permesso «gist». Creane uno nuovo con quel permesso.';
+  if (e && e.kind === 'net') return 'GitHub non è raggiungibile. Riprovo alla prossima modifica.';
+  return 'Sincronizzazione non riuscita. Riprova con «Sincronizza ora».';
+}
+
+function setSyncStatus(msg, cls) {
+  const s = $('#s-gh-status');
+  s.textContent = msg || '';
+  s.className = 'status' + (cls ? ' ' + cls : '');
+}
+
+async function syncNow() {
+  if (!gh.token) return false;
+  if (syncing) { syncAgain = true; return false; }
+  syncing = true;
+  setSyncStatus('Sincronizzazione in corso…');
+  try {
+    if (!gh.gist) { gh.gist = await findOrCreateGist(); store.set('wk-gh', gh); }
+    let g;
+    try { g = await ghFetch('/gists/' + gh.gist); }
+    catch (e) {
+      if (e && e.kind === 'http' && e.status === 404) { gh.gist = await findOrCreateGist(); store.set('wk-gh', gh); g = await ghFetch('/gists/' + gh.gist); }
+      else throw e;
+    }
+    const f = g && g.files && g.files[GIST_FILE];
+    let remoteText = f ? (f.content || '') : '';
+    if (f && f.truncated && safeUrl(f.raw_url)) remoteText = await (await fetch(f.raw_url, { cache: 'no-store' })).text();
+    let remote = null;
+    try { remote = JSON.parse(remoteText); } catch (e) { remote = null; }
+    const res = mergeIn(remote);
+    if (res.changed) { persist(); afterMerge(res); }
+    const local = serialize();
+    if (local !== remoteText) {
+      await ghFetch('/gists/' + gh.gist, { method: 'PATCH', body: JSON.stringify({ files: { [GIST_FILE]: { content: local } } }) });
+    }
+    gh.last = Date.now();
+    store.set('wk-gh', gh);
+    setSyncStatus('Sincronizzato alle ' + fmtTime(gh.last) + '.', 'ok');
+    return true;
+  } catch (e) {
+    setSyncStatus(ghErrorCopy(e), 'err');
+    return false;
+  } finally {
+    syncing = false;
+    if (syncAgain) { syncAgain = false; scheduleSync(); }
+  }
+}
+
+/* ---------- Manual transfer code ---------- */
+function b64encode(s) {
+  const bytes = new TextEncoder().encode(s);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+function b64decode(b) {
+  const bin = atob(b);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+function setStatus(sel, msg, cls) { const s = $(sel); s.textContent = msg; s.className = 'status' + (cls ? ' ' + cls : ''); }
+
+async function shareCode() {
+  const code = 'WK1.' + b64encode(serialize());
+  const out = $('#code-out');
+  out.value = code; out.hidden = false;
+  if (navigator.share) {
+    try { await navigator.share({ title: 'Wunderkammer', text: code }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  try { await navigator.clipboard.writeText(code); setStatus('#code-status', "Codice copiato. Incollalo sull'altro dispositivo.", 'ok'); }
+  catch (e) { out.focus(); out.select(); setStatus('#code-status', 'Seleziona il codice qui sopra e copialo.'); }
+}
+
+function mergeCode() {
+  const raw = $('#code-in').value.replace(/\s+/g, '');
+  if (!raw) { setStatus('#code-status', "Incolla prima il codice dell'altro dispositivo.", 'err'); return; }
+  try {
+    const json = raw.startsWith('WK1.') ? b64decode(raw.slice(4)) : raw;
+    const res = mergeIn(JSON.parse(json));
+    saveState();
+    afterMerge(res);
+    $('#code-in').value = '';
+    setStatus('#code-status', res.changed ? 'Fatto: ' + res.changed + (res.changed === 1 ? ' elemento aggiornato.' : ' elementi aggiornati.') : 'Fatto: era già tutto uguale.', 'ok');
+  } catch (e) {
+    setStatus('#code-status', 'Il codice non è valido. Copialo di nuovo per intero.', 'err');
+  }
+}
+
+/* ---------- Settings ---------- */
+function renderSettings() {
+  $('#s-key').value = apiKey;
+  setStatus('#s-key-status', apiKey ? 'Chiave salvata su questo dispositivo.' : (keyless ? 'Stai usando OpenAlex senza chiave: poche richieste al giorno.' : 'Nessuna chiave salvata.'), apiKey ? 'ok' : '');
+  $('#s-gh').value = gh.token ? gh.token : '';
+  $('#s-gh-actions').hidden = !gh.token;
+  $('#s-gh-save').textContent = gh.token ? 'Aggiorna token' : 'Collega';
+  if (!syncing) {
+    if (gh.token && gh.last) setSyncStatus('Ultima sincronizzazione alle ' + fmtTime(gh.last) + ' del ' + fmtDate(gh.last) + '.', 'ok');
+    else if (!gh.token) setSyncStatus('');
+  }
+  $('#s-theme').value = store.get('wk-theme', 'auto');
+  $('#journal-list').textContent = 'Con «Grandi riviste» attivo, il feed pesca solo da: ' + JOURNALS.map(j => j[0]).join(', ') + '.';
+}
+
+function saveKey(value) {
+  apiKey = (value || '').trim();
+  store.set('wk-key', apiKey);
+  if (apiKey) { keyless = false; store.set('wk-keyless', false); }
+}
+
+/* ---------- Views ---------- */
+const VIEWS = ['feed', 'salvati', 'letti', 'impostazioni'];
+function currentView() { const v = (location.hash || '#feed').slice(1); return VIEWS.includes(v) ? v : 'feed'; }
+function route() {
+  const view = currentView();
+  for (const v of VIEWS) $('#view-' + v).hidden = v !== view;
+  for (const a of document.querySelectorAll('.tabs a')) {
+    if (a.dataset.view === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  }
+  if (view === 'salvati') renderSaved();
+  if (view === 'letti') renderRead();
+  if (view === 'impostazioni') renderSettings();
+  if (view === 'feed') requestAnimationFrame(() => drawFern(false));
+  window.scrollTo(0, 0);
+}
+
+/* ---------- Masthead fern (Barnsley IFS, drawn like a cyanotype) ---------- */
+let fernW = 0;
+function drawFern(animate) {
+  const c = $('#fern');
+  if (!c) return;
+  const rect = c.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  if (!animate && Math.round(rect.width) === fernW) return;
+  fernW = Math.round(rect.width);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = Math.round(rect.width * dpr), H = Math.round(rect.height * dpr);
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.fillStyle = 'rgba(236,245,252,0.05)';
+  for (let i = 0; i < W * H / 900; i++) ctx.fillRect(Math.random() * W, Math.random() * H, dpr, dpr);
+
+  const wide = W / H > 2.2;
+  const s = H * (wide ? 1.3 : 1.12) / 10;
+  const bx = W * (wide ? 0.84 : 1.04), by = H * 1.04;
+  const ang = wide ? -0.62 : -0.4, ca = Math.cos(ang), sa = Math.sin(ang);
+  const total = Math.round(Math.min(95000, Math.max(30000, W * H / 6)));
+  const dot = Math.max(1, 1.15 * dpr);
+  ctx.fillStyle = 'rgba(236,245,252,0.30)';
+  let x = 0, y = 0;
+  const step = n => {
+    for (let i = 0; i < n; i++) {
+      const r = Math.random();
+      let nx, ny;
+      if (r < 0.01) { nx = 0; ny = 0.16 * y; }
+      else if (r < 0.86) { nx = 0.85 * x + 0.04 * y; ny = -0.04 * x + 0.85 * y + 1.6; }
+      else if (r < 0.93) { nx = 0.2 * x - 0.26 * y; ny = 0.23 * x + 0.22 * y + 1.6; }
+      else { nx = -0.15 * x + 0.28 * y; ny = 0.26 * x + 0.24 * y + 0.44; }
+      x = nx; y = ny;
+      const vx = x * s, vy = -y * s;
+      ctx.fillRect(bx + vx * ca - vy * sa, by + vx * sa + vy * ca, dot, dot);
+    }
+  };
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!animate || reduce) { step(total); return; }
+  const frames = 55, per = Math.ceil(total / frames);
+  let f = 0;
+  const tick = () => { step(per); if (++f < frames) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}
+
+/* ---------- Wiring ---------- */
+function applyTheme(v) {
+  if (v === 'light' || v === 'dark') document.documentElement.dataset.theme = v;
+  else delete document.documentElement.dataset.theme;
+}
+
+function wire() {
+  for (const b of document.querySelectorAll('#modes button')) {
+    b.onclick = () => {
+      if (state.prefs.mode === b.dataset.mode) return;
+      state.prefs.mode = b.dataset.mode;
+      renderControls();
+      prefsChanged(0);
+    };
+  }
+  $('#t-big').onchange = e => { state.prefs.big = e.target.checked; prefsChanged(0); };
+  $('#t-oa').onchange = e => { state.prefs.oa = e.target.checked; prefsChanged(0); };
+  $('#load-more').onclick = () => { if (feedError || !feedCount) resetFeed(); else loadMore(); };
+
+  $('#ob-save').onclick = () => {
+    const v = $('#ob-key').value.trim();
+    if (!v) { $('#ob-key').focus(); return; }
+    saveKey(v); resetFeed();
+  };
+  $('#ob-skip').onclick = () => { keyless = true; store.set('wk-keyless', true); resetFeed(); };
+
+  $('#s-key-save').onclick = () => {
+    const v = $('#s-key').value.trim();
+    if (!v) { setStatus('#s-key-status', 'Incolla prima la chiave.', 'err'); return; }
+    saveKey(v); renderSettings(); resetFeed();
+  };
+  $('#s-key-del').onclick = () => { saveKey(''); renderSettings(); resetFeed(); };
+
+  $('#s-gh-save').onclick = async () => {
+    const v = $('#s-gh').value.trim();
+    if (!v) { setSyncStatus('Incolla prima il token.', 'err'); return; }
+    gh = { token: v, gist: '', last: 0 };
+    store.set('wk-gh', gh);
+    $('#s-gh-actions').hidden = false;
+    $('#s-gh-save').textContent = 'Aggiorna token';
+    const ok = await syncNow();
+    if (ok) setSyncStatus("Collegato. Inserisci lo stesso token sull'altro dispositivo.", 'ok');
+  };
+  $('#s-gh-sync').onclick = () => syncNow();
+  $('#s-gh-del').onclick = () => {
+    gh = { token: '', gist: '', last: 0 };
+    store.del('wk-gh');
+    renderSettings();
+    setSyncStatus('Scollegato. I dati su questo dispositivo restano.');
+  };
+
+  $('#code-share').onclick = shareCode;
+  $('#code-merge').onclick = mergeCode;
+  $('#s-theme').onchange = e => { store.set('wk-theme', e.target.value); applyTheme(e.target.value); };
+  $('#s-wipe').onclick = () => {
+    if (!confirm('Cancellare letti, salvati, argomenti, chiave e collegamento a GitHub da questo dispositivo?')) return;
+    for (const k of ['wk-state', 'wk-key', 'wk-keyless', 'wk-gh', 'wk-meta', 'wk-theme']) store.del(k);
+    location.hash = '#feed';
+    location.reload();
+  };
+
+  window.addEventListener('hashchange', route);
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => drawFern(false), 200); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && gh.token && Date.now() - (gh.last || 0) > 60000) syncNow();
+  });
+
+  const more = $('#load-more');
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting) && !loading && !feedError && feedCount > 0 && currentView() === 'feed' && !more.hidden && more.textContent !== 'Riprova') loadMore();
+    }, { rootMargin: '300px' }).observe(more);
+  }
+}
+
+async function start() {
+  applyTheme(store.get('wk-theme', 'auto'));
+  renderControls();
+  wire();
+  route();
+  drawFern(true);
+  updateOnboard();
+  if (gh.token) await Promise.race([syncNow(), sleep(5000)]);
+  started = true;
+  resetFeed();
+}
+start();
+})();
+</script>
+</body>
+</html>
