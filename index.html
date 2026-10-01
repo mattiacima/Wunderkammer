@@ -24,7 +24,7 @@
   --err: #A4262C;
   --serif: 'Literata', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
   --sans: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --tabs-h: 60px;
+  --tabs-h: 62px;
   color-scheme: light;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
@@ -44,67 +44,59 @@
 }
 html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
 *, *::before, *::after { box-sizing: border-box; }
-body {
-  margin: 0; background: var(--paper); color: var(--ink);
-  font-family: var(--sans); font-size: 1rem; line-height: 1.5;
-}
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 1rem; line-height: 1.5; overflow-x: hidden; }
 img, canvas, svg { max-width: 100%; }
 a { color: var(--blue); text-underline-offset: 3px; }
 :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 [hidden] { display: none !important; }
-main { padding-bottom: calc(var(--tabs-h) + 1.5rem); }
+main { padding-bottom: calc(var(--tabs-h) + 2rem); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 1.25rem; }
 
 /* Masthead: a cyanotype photogram of a fern */
-.mast {
-  position: relative; overflow: hidden; background: var(--ground); color: var(--on-ground);
-  min-height: clamp(210px, 34vh, 300px); display: flex; align-items: flex-end;
-}
+.mast { position: relative; overflow: hidden; background: var(--ground); color: var(--on-ground); min-height: clamp(210px, 34vh, 300px); display: flex; align-items: flex-end; }
 .mast canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .mast-inner { position: relative; width: 100%; max-width: 1120px; margin: 0 auto; padding: 1.25rem 1.25rem 1.5rem; }
-.mast h1 {
-  font-family: var(--serif); font-style: italic; font-weight: 500;
-  font-size: clamp(2.6rem, 11vw, 4.75rem); line-height: 0.95; letter-spacing: -0.015em; margin: 0;
-}
+.mast h1 { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: clamp(2.6rem, 11vw, 4.75rem); line-height: 0.95; letter-spacing: -0.015em; margin: 0; }
 .mast p { margin: 0.6rem 0 0; max-width: 23ch; font-size: 0.98rem; line-height: 1.4; }
+.mast .gear { position: absolute; top: 0.5rem; right: 0.5rem; color: var(--on-ground); z-index: 1; background: rgba(15, 45, 80, 0.55); border-radius: 50%; }
+
+.gear { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex: none; color: var(--muted); border-radius: 3px; }
+.gear svg, .tabs svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.gear svg { width: 24px; height: 24px; }
 
 /* Controls */
 .controls { max-width: 1120px; margin: 0 auto; padding: 1.1rem 1.25rem 0.25rem; }
-.chips {
-  display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none;
-  margin: 0 -1.25rem; padding: 0.1rem 1.25rem 0.6rem;
-}
+.chips { display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none; margin: 0 -1.25rem; padding: 0.1rem 1.25rem 0.6rem; }
 .chips::-webkit-scrollbar { display: none; }
 @media (min-width: 760px) { .chips { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0 0 0.6rem; } }
-.chip {
-  flex: none; font: inherit; font-size: 0.92rem; line-height: 1.2; cursor: pointer;
-  padding: 0.55rem 0.8rem; border: 1px solid var(--rule); border-radius: 3px;
-  background: transparent; color: var(--muted);
-}
+.chip { flex: none; font: inherit; font-size: 0.92rem; line-height: 1.2; cursor: pointer; padding: 0.55rem 0.8rem; border: 1px solid var(--rule); border-radius: 3px; background: transparent; color: var(--muted); }
 .chip[aria-pressed="true"] { background: var(--wash); border-color: var(--blue); color: var(--ink); }
-.chip-all { flex: none; font: inherit; font-size: 0.9rem; background: none; border: 0; color: var(--blue); text-decoration: underline; text-underline-offset: 3px; padding: 0.55rem 0.3rem; cursor: pointer; }
-.seg { display: inline-flex; margin-top: 0.35rem; border: 1px solid var(--blue); border-radius: 3px; overflow: hidden; }
-.seg button { font: inherit; font-size: 0.92rem; padding: 0.55rem 0.9rem; background: transparent; color: var(--blue); border: 0; cursor: pointer; }
-.seg button + button { border-left: 1px solid var(--blue); }
-.seg button[aria-pressed="true"] { background: var(--blue); color: var(--paper); }
-.toggles { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; font-size: 0.94rem; }
+.chip.sm { font-size: 0.86rem; padding: 0.45rem 0.65rem; }
+.chip-link { flex: none; font: inherit; font-size: 0.9rem; background: none; border: 0; color: var(--blue); text-decoration: underline; text-underline-offset: 3px; padding: 0.55rem 0.3rem; cursor: pointer; white-space: nowrap; }
+.seg { display: inline-flex; max-width: 100%; margin-top: 0.35rem; border: 1px solid var(--blue); border-radius: 3px; overflow: hidden; }
+.seg button, .seg a { font: inherit; font-size: 0.92rem; padding: 0.55rem 0.85rem; background: transparent; color: var(--blue); border: 0; cursor: pointer; text-decoration: none; white-space: nowrap; }
+.seg > * + * { border-left: 1px solid var(--blue) !important; }
+.seg [aria-pressed="true"], .seg [aria-current="page"] { background: var(--blue); color: var(--paper); }
+@media (max-width: 380px) { .seg button, .seg a { padding: 0.55rem 0.6rem; font-size: 0.88rem; } }
+@media (max-width: 350px) { .seg button, .seg a { padding: 0.55rem 0.45rem; font-size: 0.84rem; } }
+.toggles { display: flex; flex-wrap: wrap; gap: 0 1.25rem; font-size: 0.94rem; }
 .toggles label { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 44px; cursor: pointer; }
 input[type="checkbox"] { accent-color: var(--blue); width: 1.15rem; height: 1.15rem; margin: 0; }
 .mode-hint { font-size: 0.88rem; color: var(--muted); margin: 0.45rem 0 0.1rem; }
 
-/* Panels (first run) */
+/* Panels */
 .panel { max-width: 720px; margin: 1.25rem auto 0; padding: 0 1.25rem; }
 .panel-box { border: 1px solid var(--blue); background: var(--paper-2); padding: 1.25rem 1.25rem 1.1rem; }
-.panel h2, .setting h2 { font-family: var(--serif); font-weight: 600; font-size: 1.3rem; line-height: 1.25; margin: 0 0 0.5rem; }
-.panel p, .panel li { font-size: 0.97rem; }
-.panel ol, .setting ol { padding-left: 1.3rem; margin: 0.6rem 0; }
-.panel li + li, .setting li + li { margin-top: 0.25rem; }
+.panel-box h2, .setting h2 { font-family: var(--serif); font-weight: 600; font-size: 1.3rem; line-height: 1.25; margin: 0 0 0.5rem; }
+.panel-box p, .panel-box li { font-size: 0.97rem; }
+.panel-box ol, .setting ol { padding-left: 1.3rem; margin: 0.6rem 0; }
+.panel-box li + li, .setting li + li { margin-top: 0.25rem; }
 
-/* Feed */
+/* Article lists */
 .list { max-width: 720px; margin: 0 auto; padding: 0.25rem 1.25rem 0; }
-@media (min-width: 980px) {
-  .list.grid { max-width: 1120px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 3.5rem; }
-}
-.entry { padding: 1.6rem 0 1.8rem; border-top: 1px solid var(--rule); }
+@media (min-width: 980px) { .list.grid { max-width: 1120px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 3.5rem; } }
+.entry { padding: 1.6rem 0 1.8rem; border-top: 1px solid var(--rule); min-width: 0; }
 .entry-topic { margin: 0 0 0.4rem; font-size: 0.88rem; font-weight: 700; color: var(--blue); }
 .entry-title { font-family: var(--serif); font-weight: 600; font-size: 1.32rem; line-height: 1.27; margin: 0; overflow-wrap: anywhere; }
 @media (min-width: 760px) { .entry-title { font-size: 1.42rem; } }
@@ -113,83 +105,107 @@ input[type="checkbox"] { accent-color: var(--blue); width: 1.15rem; height: 1.15
 .entry.is-read .entry-title { color: var(--muted); }
 .entry-authors { margin: 0.45rem 0 0; font-size: 0.92rem; color: var(--muted); }
 .abstract { margin-top: 0.9rem; max-width: 66ch; }
-.abstract p { margin: 0; font-family: var(--serif); font-size: 1.03rem; line-height: 1.66; hyphens: auto; -webkit-hyphens: auto; }
+.abstract p { margin: 0; font-family: var(--serif); font-size: 1.03rem; line-height: 1.66; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; }
 .abstract.clamped p { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
 .linkish { font: inherit; font-size: 0.93rem; background: none; border: 0; padding: 0.45rem 0; color: var(--blue); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.why { margin-top: 0.9rem; padding: 0.5rem 0 0.5rem 0.85rem; border-left: 3px solid var(--blue); max-width: 66ch; }
+.why p { margin: 0; font-size: 0.97rem; line-height: 1.5; }
+.why .why-label { font-size: 0.84rem; font-weight: 700; color: var(--blue); margin-bottom: 0.2rem; }
 
 /* Specimen label: where the article comes from */
 .label { display: block; width: fit-content; min-width: 13.5rem; max-width: 100%; margin-top: 1rem; padding: 0.6rem 0.8rem 0.65rem; border: 1px solid var(--blue); background: var(--paper-2); }
 .label p { margin: 0; font-size: 0.87rem; line-height: 1.4; }
-.label .l-journal { font-family: var(--serif); font-style: italic; font-size: 0.98rem; color: var(--ink); }
+.label .l-journal { font-family: var(--serif); font-style: italic; font-size: 0.98rem; color: var(--ink); overflow-wrap: anywhere; }
 .label .l-meta { color: var(--muted); }
 .label .l-oa { color: var(--blue); font-weight: 700; }
 
 .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
-.actions.secondary { gap: 0.15rem 0.2rem; margin: 0.5rem 0 0 -0.5rem; }
-.btn {
-  font: inherit; font-size: 0.93rem; line-height: 1.2; display: inline-flex; align-items: center; justify-content: center;
-  min-height: 42px; padding: 0.5rem 0.9rem; border: 1px solid var(--blue); border-radius: 3px;
-  background: transparent; color: var(--blue); text-decoration: none; cursor: pointer;
-}
+.actions.secondary { gap: 0.1rem 0.15rem; margin: 0.5rem 0 0 -0.5rem; }
+.btn { font: inherit; font-size: 0.93rem; line-height: 1.2; display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0.5rem 0.9rem; border: 1px solid var(--blue); border-radius: 3px; background: transparent; color: var(--blue); text-decoration: none; cursor: pointer; }
 .btn.solid { background: var(--blue); color: var(--paper); }
 .btn:disabled { opacity: 0.55; cursor: default; }
 .actions.secondary .btn { border-color: transparent; color: var(--muted); padding: 0.5rem 0.5rem; }
-.actions.secondary .btn[aria-pressed="true"] { color: var(--blue); font-weight: 700; }
+.actions.secondary .btn[aria-pressed="true"], .actions.secondary .btn[aria-expanded="true"] { color: var(--blue); font-weight: 700; }
+.rate { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: 0.7rem; }
+.rate-q { font-size: 0.9rem; color: var(--muted); margin-right: 0.2rem; }
 
 .feed-foot { max-width: 720px; margin: 0 auto; padding: 1.25rem 1.25rem 0; text-align: center; }
 .feed-status { margin: 0 0 1rem; color: var(--muted); }
 .feed-status.err { color: var(--err); }
 
-/* Other views */
-.view-head { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 0.75rem; }
+/* View headers */
+.view-head { max-width: 720px; margin: 0 auto; padding: 1.5rem 1.25rem 0.75rem; }
+@media (min-width: 980px) { .view-head.wide { max-width: 1120px; } }
+.vh-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .view-head h1 { font-family: var(--serif); font-weight: 600; font-size: 2rem; line-height: 1.15; margin: 0; }
-.view-head p { margin: 0.4rem 0 0; color: var(--muted); }
+.view-head > p { margin: 0.4rem 0 0; color: var(--muted); max-width: 60ch; }
 .empty { color: var(--muted); padding: 1.25rem 0; border-top: 1px solid var(--rule); margin: 0; }
+.note { font-size: 0.88rem; color: var(--muted); }
+
+/* Esplora */
+.crumbs:empty { display: none; }
+.crumbs { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.1rem 0.4rem; margin-top: 0.5rem; font-size: 0.92rem; color: var(--muted); }
+.crumbs a { color: var(--blue); padding: 0.35rem 0; }
+.crumbs span[aria-current] { color: var(--ink); }
+.node { max-width: 720px; margin: 0 auto; padding: 0.25rem 1.25rem 1rem; }
+@media (min-width: 980px) { .node { max-width: 1120px; } }
+.node h2 { font-family: var(--serif); font-weight: 600; font-size: 1.6rem; line-height: 1.2; margin: 0; overflow-wrap: anywhere; }
+.node p { margin: 0.45rem 0 0; color: var(--muted); max-width: 62ch; }
+.opts { max-width: 720px; margin: 0 auto; padding: 0 1.25rem; }
+@media (min-width: 760px) { .opts { max-width: 1120px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 2.5rem; } }
+.opt { display: block; position: relative; padding: 1rem 2rem 1.05rem 0; border-top: 1px solid var(--rule); color: var(--ink); text-decoration: none; min-width: 0; }
+.opt::after { content: '›'; position: absolute; right: 0.25rem; top: 50%; transform: translateY(-50%); font-size: 1.6rem; line-height: 1; color: var(--blue); }
+.opt-title { display: block; font-family: var(--serif); font-weight: 600; font-size: 1.12rem; line-height: 1.3; overflow-wrap: anywhere; }
+.opt-desc { margin-top: 0.3rem; font-size: 0.9rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.opt-meta { display: block; margin-top: 0.3rem; font-size: 0.84rem; color: var(--blue); }
+
+/* Curiosità */
+.curio { padding: 1.6rem 0 1.8rem; border-top: 1px solid var(--rule); min-width: 0; }
+.curio-fact { font-family: var(--serif); font-size: 1.38rem; line-height: 1.38; font-weight: 500; margin: 0; overflow-wrap: anywhere; }
+@media (min-width: 760px) { .curio-fact { font-size: 1.5rem; } }
+.curio-src { margin: 0.7rem 0 0; font-size: 0.9rem; color: var(--muted); }
+.curio-src i { font-family: var(--serif); }
+.curio-entry .entry { border-top: 1px dashed var(--rule); margin-top: 1.25rem; padding-bottom: 0; }
+.curio-controls { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem; }
+.curio-controls select { flex: 1 1 15rem; }
+
+/* Cerca */
+.searchbar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: stretch; margin-top: 0.9rem; }
+.searchbar textarea { flex: 1 1 14rem; min-width: 0; font: inherit; font-size: 1rem; line-height: 1.4; padding: 0.6rem 0.7rem; min-height: 46px; border: 1px solid var(--rule); border-radius: 3px; background: var(--paper-2); color: var(--ink); resize: vertical; }
+.summary { margin: 0.75rem 0 0; }
+.summary p { margin: 0.25rem 0; }
+details.rest { max-width: 720px; margin: 1.5rem auto 0; padding: 0 1.25rem; }
+details.rest summary { cursor: pointer; color: var(--blue); padding: 0.6rem 0; font-weight: 700; }
+details.rest .list { padding: 0; }
+
+/* Raccolta & settings */
 .rows { max-width: 720px; margin: 0 auto; padding: 0 1.25rem; }
 .row { padding: 1rem 0 0.8rem; border-top: 1px solid var(--rule); }
 .row-title { font-family: var(--serif); font-size: 1.08rem; font-weight: 600; line-height: 1.32; color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
 .row-title:hover { text-decoration: underline; }
 .row-meta { margin: 0.3rem 0 0; font-size: 0.88rem; color: var(--muted); }
-
+.row .actions { margin-top: 0.4rem; }
 .settings { max-width: 660px; margin: 0 auto; padding: 0 1.25rem; }
 .setting { padding: 1.5rem 0 1.6rem; border-top: 1px solid var(--rule); }
 .setting p { margin: 0.4rem 0; }
-.note { font-size: 0.88rem; color: var(--muted); }
 .field { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
-.field input, .field select {
-  flex: 1 1 14rem; min-width: 0; font: inherit; font-size: 1rem; padding: 0.6rem 0.7rem; min-height: 44px;
-  border: 1px solid var(--rule); border-radius: 3px; background: var(--paper-2); color: var(--ink);
-}
-textarea {
-  width: 100%; min-height: 6.5rem; margin-top: 0.6rem; font: inherit; font-size: 0.82rem; line-height: 1.4; padding: 0.6rem 0.7rem;
-  border: 1px solid var(--rule); border-radius: 3px; background: var(--paper-2); color: var(--ink); resize: vertical; word-break: break-all;
-}
+.field input, select { flex: 1 1 14rem; min-width: 0; font: inherit; font-size: 1rem; padding: 0.6rem 0.7rem; min-height: 44px; border: 1px solid var(--rule); border-radius: 3px; background: var(--paper-2); color: var(--ink); }
+textarea.code { width: 100%; min-height: 6.5rem; margin-top: 0.6rem; font: inherit; font-size: 0.82rem; line-height: 1.4; padding: 0.6rem 0.7rem; border: 1px solid var(--rule); border-radius: 3px; background: var(--paper-2); color: var(--ink); resize: vertical; word-break: break-all; }
 .status { font-size: 0.92rem; color: var(--muted); margin: 0.6rem 0 0; }
 .status.ok { color: var(--blue); }
 .status.err { color: var(--err); }
 .subhead { font-weight: 700; margin-top: 1.25rem !important; }
+.fav-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.4rem 0; border-top: 1px solid var(--rule); }
+.fav-row span small { display: block; color: var(--muted); font-size: 0.8rem; }
 
 /* Bottom tabs */
-.tabs {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; justify-content: center;
-  background: var(--paper); border-top: 1px solid var(--rule);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-.tabs a {
-  flex: 1; max-width: 170px; min-height: var(--tabs-h); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem;
-  font-size: 0.8rem; color: var(--muted); text-decoration: none; border-top: 2px solid transparent; margin-top: -1px;
-}
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; justify-content: center; background: var(--paper); border-top: 1px solid var(--rule); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.tabs a { flex: 1; min-width: 0; max-width: 150px; min-height: var(--tabs-h); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; font-size: 0.76rem; color: var(--muted); text-decoration: none; border-top: 2px solid transparent; margin-top: -1px; }
 .tabs a[aria-current="page"] { color: var(--blue); border-top-color: var(--blue); font-weight: 700; }
-.tabs svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.tabs svg { width: 22px; height: 22px; }
 
-.toast {
-  position: fixed; left: 50%; transform: translateX(-50%); z-index: 20;
-  bottom: calc(var(--tabs-h) + env(safe-area-inset-bottom, 0px) + 0.75rem);
-  display: flex; align-items: center; gap: 1rem; max-width: calc(100% - 2rem); width: max-content;
-  background: var(--ink); color: var(--paper); padding: 0.7rem 1rem; border-radius: 4px; font-size: 0.93rem;
-}
+.toast { position: fixed; left: 50%; transform: translateX(-50%); z-index: 20; bottom: calc(var(--tabs-h) + env(safe-area-inset-bottom, 0px) + 0.75rem); display: flex; align-items: center; gap: 1rem; max-width: calc(100% - 2rem); width: max-content; background: var(--ink); color: var(--paper); padding: 0.7rem 1rem; border-radius: 4px; font-size: 0.93rem; }
 .toast button { font: inherit; font-weight: 700; background: none; border: 0; color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 0.25rem 0; }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -198,6 +214,7 @@ textarea {
   <section id="view-feed" aria-label="Feed">
     <header class="mast">
       <canvas id="fern" aria-hidden="true"></canvas>
+      <a class="gear" href="#impostazioni" aria-label="Impostazioni"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></a>
       <div class="mast-inner">
         <h1>Wunderkammer</h1>
         <p>Articoli scientifici da leggere, scelti tra i tuoi interessi.</p>
@@ -205,16 +222,18 @@ textarea {
     </header>
 
     <div class="controls">
-      <div class="chips" id="chips" role="group" aria-label="Argomenti"></div>
+      <div class="chips" id="chips" role="group" aria-label="Argomenti preferiti"></div>
       <div class="seg" id="modes" role="group" aria-label="Che articoli mostrare">
         <button type="button" data-mode="sorpresa">A sorpresa</button>
         <button type="button" data-mode="recenti">Recenti</button>
         <button type="button" data-mode="classici">Classici</button>
+        <button type="button" data-mode="perte">Per te</button>
       </div>
       <p class="mode-hint" id="mode-hint"></p>
       <div class="toggles" role="group" aria-label="Filtri">
         <label><input type="checkbox" id="t-big"> Grandi riviste</label>
         <label><input type="checkbox" id="t-oa"> Leggibili gratis</label>
+        <label><input type="checkbox" id="t-intro"> Per iniziare</label>
       </div>
     </div>
 
@@ -243,19 +262,105 @@ textarea {
     </div>
   </section>
 
-  <!-- SAVED -->
-  <section id="view-salvati" hidden aria-label="Salvati">
-    <div class="view-head"><h1>Salvati</h1><p id="saved-count"></p></div>
-    <div class="list" id="saved-list"></div>
+  <!-- CURIOSITÀ -->
+  <section id="view-curiosita" hidden aria-label="Curiosità">
+    <div class="view-head">
+      <div class="vh-row"><h1>Curiosità</h1><a class="gear" href="#impostazioni" aria-label="Impostazioni"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></a></div>
+      <p>Fatti presi dagli abstract di articoli veri. Se uno ti incuriosisce, apri lo studio da cui viene.</p>
+    </div>
+    <div class="wrap">
+      <div class="panel-box" id="curio-setup" hidden>
+        <h2>Serve l'assistente AI</h2>
+        <p>Le curiosità vengono scritte da un'AI leggendo gli abstract. Puoi collegarne una gratuita dalle impostazioni in un paio di minuti.</p>
+        <div class="actions"><a class="btn solid" href="#impostazioni/ai">Collega l'AI</a></div>
+      </div>
+      <div id="curio-controls">
+        <div class="curio-controls">
+          <label class="sr-only" for="curio-src">Da quali argomenti</label>
+          <select id="curio-src"></select>
+          <button class="btn solid" type="button" id="curio-go">Nuove curiosità</button>
+        </div>
+        <p class="note">Le frasi sono scritte dall'AI a partire dall'abstract: la fonte resta l'articolo, ed è lì che conviene verificare.</p>
+      </div>
+    </div>
+    <div class="list grid" id="curio-list"></div>
+    <div class="feed-foot">
+      <p class="feed-status" id="curio-status"></p>
+      <button class="btn" type="button" id="curio-more" hidden>Altre curiosità</button>
+    </div>
   </section>
 
-  <!-- READ -->
-  <section id="view-letti" hidden aria-label="Letti">
-    <div class="view-head"><h1>Letti</h1><p id="read-count"></p></div>
+  <!-- ESPLORA -->
+  <section id="view-esplora" hidden aria-label="Esplora">
+    <div class="view-head wide">
+      <div class="vh-row"><h1>Esplora</h1><a class="gear" href="#impostazioni" aria-label="Impostazioni"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></a></div>
+      <nav class="crumbs" id="crumbs" aria-label="Percorso"></nav>
+    </div>
+    <div id="ex-head"></div>
+    <div class="opts" id="ex-opts"></div>
+    <div class="list grid" id="ex-list"></div>
+    <div class="feed-foot" id="ex-foot"></div>
+  </section>
+
+  <!-- CERCA -->
+  <section id="view-cerca" hidden aria-label="Cerca">
+    <div class="view-head">
+      <div class="vh-row"><h1>Cerca</h1><a class="gear" href="#impostazioni" aria-label="Impostazioni"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></a></div>
+    </div>
+    <div class="wrap">
+      <div class="seg" id="s-modes" role="group" aria-label="Tipo di ricerca">
+        <button type="button" data-m="kw">Parole chiave</button>
+        <button type="button" data-m="ai">Chiedi all'AI</button>
+      </div>
+      <p class="mode-hint" id="s-hint"></p>
+      <div class="searchbar">
+        <label class="sr-only" for="s-q">Cosa cerchi</label>
+        <textarea id="s-q" rows="1" enterkeyhint="search"></textarea>
+        <button class="btn solid" type="button" id="s-go">Cerca</button>
+      </div>
+      <div class="toggles" id="s-opts">
+        <label><input type="checkbox" id="s-rev"> Solo rassegne</label>
+        <label><input type="checkbox" id="s-oa"> Leggibili gratis</label>
+      </div>
+      <div class="seg" id="s-sort" role="group" aria-label="Ordine">
+        <button type="button" data-s="rel">Più pertinenti</button>
+        <button type="button" data-s="cit">Più citati</button>
+        <button type="button" data-s="new">Più recenti</button>
+      </div>
+      <div class="summary" id="s-summary"></div>
+    </div>
+    <div class="list grid" id="s-list"></div>
+    <div class="feed-foot" id="s-foot"></div>
+    <details class="rest" id="s-rest" hidden>
+      <summary>Altri articoli trovati dalla ricerca</summary>
+      <div class="list" id="s-rest-list"></div>
+    </details>
+  </section>
+
+  <!-- RACCOLTA -->
+  <section id="view-raccolta" hidden aria-label="Raccolta">
+    <div class="view-head">
+      <div class="vh-row"><h1>Raccolta</h1><a class="gear" href="#impostazioni" aria-label="Impostazioni"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></a></div>
+      <nav class="seg" id="r-tabs" aria-label="Sezioni della raccolta"><a href="#raccolta" data-t="salvati">Salvati</a><a href="#raccolta/letti" data-t="letti">Letti</a></nav>
+      <p id="r-count"></p>
+    </div>
+    <div class="list grid" id="saved-list"></div>
     <div class="rows" id="read-list"></div>
   </section>
 
-  <!-- SETTINGS -->
+  <!-- SEGUI IL FILO -->
+  <section id="view-filo" hidden aria-label="Segui il filo">
+    <div class="view-head">
+      <div class="vh-row"><h1>Segui il filo</h1><a class="gear" href="#impostazioni" aria-label="Impostazioni"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></a></div>
+      <div id="filo-origin"></div>
+      <nav class="seg" id="filo-tabs" aria-label="Direzione"></nav>
+      <p class="mode-hint" id="filo-hint"></p>
+    </div>
+    <div class="list grid" id="filo-list"></div>
+    <div class="feed-foot" id="filo-foot"></div>
+  </section>
+
+  <!-- IMPOSTAZIONI -->
   <section id="view-impostazioni" hidden aria-label="Impostazioni">
     <div class="view-head"><h1>Impostazioni</h1></div>
     <div class="settings">
@@ -271,11 +376,46 @@ textarea {
         <p class="status" id="s-key-status"></p>
       </div>
 
+      <div class="setting" id="set-ai">
+        <h2>Assistente AI</h2>
+        <p>Facoltativo. Serve per «Chiedi all'AI» in Cerca e per le Curiosità. L'AI non cerca articoli per conto suo: riceve solo quelli veri trovati su OpenAlex e può soltanto sceglierli o descriverli.</p>
+        <div class="field">
+          <label class="sr-only" for="ai-provider">Servizio AI</label>
+          <select id="ai-provider">
+            <option value="gemini">Google Gemini, piano gratuito</option>
+            <option value="openrouter">OpenRouter, modelli gratuiti</option>
+          </select>
+        </div>
+        <ol id="ai-steps"></ol>
+        <div class="field">
+          <label class="sr-only" for="ai-key">Chiave del servizio AI</label>
+          <input id="ai-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Incolla la chiave">
+          <button class="btn solid" type="button" id="ai-save">Salva e prova</button>
+        </div>
+        <div class="field" id="ai-model-row" hidden>
+          <label class="sr-only" for="ai-model">Modello</label>
+          <select id="ai-model"></select>
+        </div>
+        <p class="status" id="ai-status"></p>
+        <p class="note" id="ai-note"></p>
+        <div class="actions" id="ai-del-row" hidden><button class="btn" type="button" id="ai-del">Rimuovi chiave</button></div>
+      </div>
+
+      <div class="setting">
+        <h2>Preferiti del feed</h2>
+        <p>Sono le scorciatoie in cima al feed. Altre le aggiungi da Esplora, con «Aggiungi ai preferiti».</p>
+        <div id="fav-list"></div>
+        <div class="actions">
+          <button class="btn" type="button" id="fav-reset">Ripristina quelli iniziali</button>
+          <a class="btn" href="#esplora">Vai a Esplora</a>
+        </div>
+      </div>
+
       <div class="setting">
         <h2>Telefono e tablet sincronizzati</h2>
-        <p>Salvati, letti e argomenti scelti vengono tenuti in un file sul tuo account GitHub, così ritrovi tutto sull'altro dispositivo.</p>
+        <p>Salvati, letti, valutazioni, preferiti e filtri vengono tenuti in un file sul tuo account GitHub, così ritrovi tutto sull'altro dispositivo.</p>
         <ol>
-          <li>Crea un account gratuito su <a href="https://github.com/signup" target="_blank" rel="noopener">GitHub</a>.</li>
+          <li>Usa lo stesso account GitHub del sito.</li>
           <li>Crea un <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Wunderkammer" target="_blank" rel="noopener">token con il solo permesso «gist»</a>. Come scadenza puoi scegliere «No expiration».</li>
           <li>Incolla lo stesso token qui, sia sul telefono sia sul tablet.</li>
         </ol>
@@ -293,12 +433,10 @@ textarea {
 
         <p class="subhead">Senza GitHub</p>
         <p>Copia un codice da qui e incollalo sull'altro dispositivo. I dati vengono uniti, niente va perso.</p>
-        <div class="actions">
-          <button class="btn" type="button" id="code-share">Condividi codice</button>
-        </div>
-        <textarea id="code-out" readonly hidden aria-label="Codice da copiare"></textarea>
+        <div class="actions"><button class="btn" type="button" id="code-share">Condividi codice</button></div>
+        <textarea class="code" id="code-out" readonly hidden aria-label="Codice da copiare"></textarea>
         <label class="sr-only" for="code-in">Codice dall'altro dispositivo</label>
-        <textarea id="code-in" placeholder="Incolla qui il codice dell'altro dispositivo"></textarea>
+        <textarea class="code" id="code-in" placeholder="Incolla qui il codice dell'altro dispositivo"></textarea>
         <div class="actions"><button class="btn" type="button" id="code-merge">Unisci codice</button></div>
         <p class="status" id="code-status"></p>
       </div>
@@ -322,7 +460,7 @@ textarea {
 
       <div class="setting">
         <h2>Dati su questo dispositivo</h2>
-        <p>Cancella letti, salvati, argomenti, chiave e collegamento a GitHub da questo dispositivo. Il file su GitHub resta.</p>
+        <p>Cancella letti, salvati, valutazioni, preferiti, chiavi e collegamento a GitHub da questo dispositivo. Il file su GitHub resta.</p>
         <div class="actions"><button class="btn" type="button" id="s-wipe">Cancella tutto</button></div>
       </div>
     </div>
@@ -331,39 +469,43 @@ textarea {
 
 <nav class="tabs" aria-label="Sezioni">
   <a href="#feed" data-view="feed"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Feed</a>
-  <a href="#salvati" data-view="salvati"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v18l-5-4-5 4z"/></svg>Salvati</a>
-  <a href="#letti" data-view="letti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>Letti</a>
-  <a href="#impostazioni" data-view="impostazioni"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Impostazioni</a>
+  <a href="#curiosita" data-view="curiosita"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 18h5M10.5 21h3"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/></svg>Curiosità</a>
+  <a href="#esplora" data-view="esplora"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>Esplora</a>
+  <a href="#cerca" data-view="cerca"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>Cerca</a>
+  <a href="#raccolta" data-view="raccolta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v18l-5-4-5 4z"/></svg>Raccolta</a>
 </nav>
 
 <div class="toast" id="toast" role="status" hidden></div>
-
 <script>
 (() => {
 'use strict';
 
-/* ---------- Configuration ---------- */
+/* =========================================================
+   Configuration
+   ========================================================= */
 const API = 'https://api.openalex.org';
-const SELECT = 'id,doi,display_name,publication_year,primary_location,authorships,cited_by_count,abstract_inverted_index,open_access,best_oa_location';
+const SELECT = 'id,doi,display_name,publication_year,primary_location,authorships,cited_by_count,abstract_inverted_index,open_access,best_oa_location,primary_topic,type';
 const PER_PAGE = 8;
 
+// Default shortcuts at the top of the feed (keyword searches inside OpenAlex fields).
 // OpenAlex field ids: 11 Agricultural & Biological Sciences, 12 Arts & Humanities, 13 Biochemistry & Genetics,
 // 16 Chemistry, 23 Environmental Science, 28 Neuroscience, 32 Psychology, 33 Social Sciences
-const TOPICS = [
-  { id: 'zoo', name: 'Zoologia', fields: '11', q: 'zoology OR invertebrates OR insects OR birds OR mammals OR amphibians OR reptiles OR cephalopods OR "marine animals"' },
-  { id: 'eto', name: 'Etologia', fields: '11|28|32', q: 'ethology OR "animal behaviour" OR "animal behavior" OR "animal cognition" OR "animal communication"' },
-  { id: 'eco', name: 'Ecologia', fields: '11|23', q: 'ecology OR ecosystem OR biodiversity OR "food web" OR "species interactions"' },
-  { id: 'evo', name: 'Evoluzione', fields: '11|13', q: 'evolution OR "natural selection" OR speciation OR phylogeny OR "sexual selection"' },
-  { id: 'gen', name: 'Genetica', fields: '13|11', q: 'genetics OR genome OR heredity OR "gene expression" OR "population genetics"' },
-  { id: 'bot', name: 'Biologia vegetale', fields: '11|13', q: 'plants OR botany OR photosynthesis OR pollination OR flowering' },
-  { id: 'neu', name: 'Neuroscienze e comportamento', fields: '28|11|32', q: '(brain OR neurons OR "neural circuits" OR "nervous system") AND (behavior OR behaviour)' },
-  { id: 'ana', name: 'Anatomia e fisiologia', fields: '11|13|28', q: 'anatomy OR morphology OR physiology OR biomechanics OR "comparative anatomy"' },
-  { id: 'chi', name: 'Chimica della natura', fields: '16|13|11', q: '"natural products" OR "chemical ecology" OR pheromones OR venom OR biosynthesis OR "plant metabolites"' },
-  { id: 'psi', name: 'Psicologia', fields: '32|28', q: 'psychology OR cognition OR emotion OR memory OR perception OR "decision making"' },
-  { id: 'sts', name: 'Storia della scienza', fields: '12|33|11', q: '"history of science" OR "natural history" OR naturalist OR Darwin OR "scientific revolution"' },
-  { id: 'art', name: 'Scienza e arte', fields: '', q: '"scientific illustration" OR "botanical illustration" OR "art and science" OR "science and art" OR bioart OR neuroaesthetics OR "aesthetic experience"' },
-  { id: 'sto', name: 'Storia', fields: '12', q: 'history OR historical OR ancient OR medieval OR archaeology' }
+const DEFAULT_FAVS = [
+  { id: 'zoo', kind: 'q', name: 'Zoologia', fields: '11', q: 'zoology OR invertebrates OR insects OR birds OR mammals OR amphibians OR reptiles OR cephalopods OR "marine animals"' },
+  { id: 'eto', kind: 'q', name: 'Etologia', fields: '11|28|32', q: 'ethology OR "animal behaviour" OR "animal behavior" OR "animal cognition" OR "animal communication"' },
+  { id: 'eco', kind: 'q', name: 'Ecologia', fields: '11|23', q: 'ecology OR ecosystem OR biodiversity OR "food web" OR "species interactions"' },
+  { id: 'evo', kind: 'q', name: 'Evoluzione', fields: '11|13', q: 'evolution OR "natural selection" OR speciation OR phylogeny OR "sexual selection"' },
+  { id: 'gen', kind: 'q', name: 'Genetica', fields: '13|11', q: 'genetics OR genome OR heredity OR "gene expression" OR "population genetics"' },
+  { id: 'bot', kind: 'q', name: 'Biologia vegetale', fields: '11|13', q: 'plants OR botany OR photosynthesis OR pollination OR flowering' },
+  { id: 'neu', kind: 'q', name: 'Neuroscienze e comportamento', fields: '28|11|32', q: '(brain OR neurons OR "neural circuits" OR "nervous system") AND (behavior OR behaviour)' },
+  { id: 'ana', kind: 'q', name: 'Anatomia e fisiologia', fields: '11|13|28', q: 'anatomy OR morphology OR physiology OR biomechanics OR "comparative anatomy"' },
+  { id: 'chi', kind: 'q', name: 'Chimica della natura', fields: '16|13|11', q: '"natural products" OR "chemical ecology" OR pheromones OR venom OR biosynthesis OR "plant metabolites"' },
+  { id: 'psi', kind: 'q', name: 'Psicologia', fields: '32|28', q: 'psychology OR cognition OR emotion OR memory OR perception OR "decision making"' },
+  { id: 'sts', kind: 'q', name: 'Storia della scienza', fields: '12|33|11', q: '"history of science" OR "natural history" OR naturalist OR Darwin OR "scientific revolution"' },
+  { id: 'art', kind: 'q', name: 'Scienza e arte', fields: '', q: '"scientific illustration" OR "botanical illustration" OR "art and science" OR "science and art" OR bioart OR neuroaesthetics OR "aesthetic experience"' },
+  { id: 'sto', kind: 'q', name: 'Storia', fields: '12', q: 'history OR historical OR ancient OR medieval OR archaeology' }
 ];
+const KIND_LABEL = { q: 'Ricerca iniziale', field: 'Campo', subfield: 'Sottocampo', topic: 'Argomento' };
 
 const JOURNALS = [
   ['Nature', '0028-0836', '1476-4687'], ['Science', '0036-8075', '1095-9203'], ['PNAS', '0027-8424', '1091-6490'],
@@ -381,36 +523,224 @@ const JOURNALS = [
 const ISSNS = JOURNALS.flatMap(j => j.slice(1)).join('|');
 
 const MODES = {
-  sorpresa: 'Articoli già citati da molti, pescati a caso tra i più pertinenti.',
+  sorpresa: 'Articoli tra il 10% più citato del loro campo, pescati a caso.',
   recenti: 'Usciti negli ultimi 18 mesi, prima quelli di cui si parla di più.',
-  classici: 'I più citati di sempre, dal primo in giù, usciti da almeno tre anni.'
+  classici: 'I più citati di sempre, dal primo in giù, usciti da almeno tre anni.',
+  perte: 'Articoli simili a quelli che hai valutato bene, e altri dei loro argomenti. I preferiti qui sopra non contano in questa modalità.'
+};
+const INTRO_HINT = ' Con «Per iniziare» vedi solo rassegne, articoli che fanno il punto su un argomento.';
+
+// Ratings after reading: value is the weight used for recommendations.
+const RATINGS = [
+  { v: 2, label: 'Bellissimo' },
+  { v: 1, label: 'Interessante' },
+  { v: 0, label: 'Così così' },
+  { v: -2, label: 'Non fa per me' }
+];
+
+// OpenAlex taxonomy: 4 domains > 26 fields > ~250 subfields > ~4,500 topics.
+const FIELDS = {
+  11: ['Scienze agrarie e biologiche', 'Animali, piante, insetti, ambienti acquatici, agricoltura e comportamento animale.'],
+  12: ['Arti e discipline umanistiche', 'Storia, filosofia, arte, musica, lingue, letteratura e storia della scienza.'],
+  13: ['Biochimica, genetica e biologia molecolare', 'Geni, cellule, molecole, sviluppo e fisiologia.'],
+  14: ['Economia aziendale e management', 'Aziende, management, marketing e turismo.'],
+  15: ['Ingegneria chimica', 'Processi chimici industriali, catalisi e bioingegneria.'],
+  16: ['Chimica', 'Chimica organica, inorganica, analitica e fisica.'],
+  17: ['Informatica', 'Algoritmi, intelligenza artificiale, reti e software.'],
+  18: ['Scienze delle decisioni', 'Statistica applicata, decisioni e ricerca operativa.'],
+  19: ['Scienze della Terra e dei pianeti', 'Geologia, paleontologia, oceani, atmosfera e pianeti.'],
+  20: ['Economia, econometria e finanza', 'Economia, mercati e finanza.'],
+  21: ['Energia', 'Produzione di energia, combustibili e fonti rinnovabili.'],
+  22: ['Ingegneria', 'Ingegneria civile, meccanica, elettrica, biomedica e altro.'],
+  23: ['Scienze ambientali', 'Ecologia, conservazione della natura, clima e inquinamento. Gran parte dell\'ecologia sta qui.'],
+  24: ['Immunologia e microbiologia', 'Batteri, virus, parassiti e sistema immunitario.'],
+  25: ['Scienza dei materiali', 'Metalli, polimeri, biomateriali e nuovi materiali.'],
+  26: ['Matematica', 'Algebra, analisi, geometria, probabilità e logica.'],
+  27: ['Medicina', 'Malattie, anatomia, cure e salute pubblica.'],
+  28: ['Neuroscienze', 'Cervello, neuroni, sensi e basi biologiche del comportamento.'],
+  29: ['Scienze infermieristiche', 'Assistenza e cura dei pazienti.'],
+  30: ['Farmacologia, tossicologia e farmaceutica', 'Farmaci, veleni e tossine.'],
+  31: ['Fisica e astronomia', 'Particelle, materia, ottica, astronomia e astrofisica.'],
+  32: ['Psicologia', 'Mente, cognizione, emozioni e comportamento umano.'],
+  33: ['Scienze sociali', 'Società, antropologia, archeologia, educazione, diritto e politica.'],
+  34: ['Veterinaria', 'Salute e cura degli animali domestici e da allevamento.'],
+  35: ['Odontoiatria', 'Denti e cavo orale.'],
+  36: ['Professioni sanitarie', 'Fisioterapia, farmacia, logopedia e altre professioni della salute.']
+};
+const DOMAINS = [
+  { id: 'vita', name: 'Scienze della vita', desc: 'Organismi, cellule e geni, microbi, cervello e farmaci.', fields: [11, 13, 24, 28, 30] },
+  { id: 'fisiche', name: 'Scienze fisiche e ambientali', desc: 'Ecologia e ambiente, chimica, fisica, Terra, matematica, informatica e ingegneria.', fields: [23, 16, 19, 31, 26, 17, 25, 15, 21, 22] },
+  { id: 'sociali', name: 'Scienze sociali e umanistiche', desc: 'Storia, arte, filosofia, psicologia, antropologia, economia e società.', fields: [12, 32, 33, 20, 14, 18] },
+  { id: 'salute', name: 'Scienze della salute', desc: 'Medicina, veterinaria e professioni sanitarie.', fields: [27, 34, 29, 35, 36] }
+];
+const SUB_IT = {
+  'general agricultural and biological sciences': 'Scienze agrarie e biologiche in generale', 'agronomy and crop science': 'Agronomia e colture',
+  'animal science and zoology': 'Zoologia e scienze animali', 'aquatic science': 'Scienze acquatiche',
+  'ecology, evolution, behavior and systematics': 'Ecologia, evoluzione, comportamento e sistematica', 'food science': 'Scienze degli alimenti',
+  'forestry': 'Scienze forestali', 'horticulture': 'Orticoltura', 'insect science': 'Entomologia', 'plant science': 'Botanica e scienze vegetali', 'soil science': 'Scienza del suolo',
+  'general arts and humanities': 'Arti e discipline umanistiche in generale', 'history': 'Storia', 'language and linguistics': 'Lingue e linguistica',
+  'archeology (arts and humanities)': 'Archeologia', 'archeology': 'Archeologia', 'classics': 'Studi classici', 'conservation': 'Conservazione dei beni culturali',
+  'history and philosophy of science': 'Storia e filosofia della scienza', 'literature and literary theory': 'Letteratura e teoria letteraria', 'museology': 'Museologia',
+  'music': 'Musica', 'philosophy': 'Filosofia', 'religious studies': 'Studi religiosi', 'visual arts and performing arts': 'Arti visive e dello spettacolo',
+  'general biochemistry, genetics and molecular biology': 'Biochimica, genetica e biologia molecolare in generale', 'aging': 'Invecchiamento', 'ageing': 'Invecchiamento',
+  'biochemistry': 'Biochimica', 'biophysics': 'Biofisica', 'biotechnology': 'Biotecnologie', 'cancer research': 'Ricerca sul cancro', 'cell biology': 'Biologia cellulare',
+  'clinical biochemistry': 'Biochimica clinica', 'developmental biology': 'Biologia dello sviluppo', 'endocrinology': 'Endocrinologia', 'genetics': 'Genetica',
+  'molecular biology': 'Biologia molecolare', 'molecular medicine': 'Medicina molecolare', 'physiology': 'Fisiologia', 'structural biology': 'Biologia strutturale',
+  'general business, management and accounting': 'Economia aziendale in generale', 'accounting': 'Contabilità', 'business and international management': 'Gestione aziendale e internazionale',
+  'management information systems': 'Sistemi informativi aziendali', 'management of technology and innovation': "Gestione della tecnologia e dell'innovazione", 'marketing': 'Marketing',
+  'organizational behavior and human resource management': 'Comportamento organizzativo e risorse umane', 'strategy and management': 'Strategia e management',
+  'tourism, leisure and hospitality management': 'Turismo e ospitalità', 'industrial relations': 'Relazioni industriali',
+  'general chemical engineering': 'Ingegneria chimica in generale', 'bioengineering': 'Bioingegneria', 'catalysis': 'Catalisi', 'chemical health and safety': 'Sicurezza chimica',
+  'colloid and surface chemistry': 'Chimica dei colloidi e delle superfici', 'filtration and separation': 'Filtrazione e separazione',
+  'fluid flow and transfer processes': 'Fluidodinamica e processi di trasferimento', 'process chemistry and technology': 'Chimica e tecnologia di processo',
+  'general chemistry': 'Chimica in generale', 'analytical chemistry': 'Chimica analitica', 'electrochemistry': 'Elettrochimica', 'inorganic chemistry': 'Chimica inorganica',
+  'organic chemistry': 'Chimica organica', 'physical and theoretical chemistry': 'Chimica fisica e teorica', 'spectroscopy': 'Spettroscopia',
+  'general computer science': 'Informatica in generale', 'artificial intelligence': 'Intelligenza artificiale', 'computational theory and mathematics': 'Teoria della computazione',
+  'computer graphics and computer-aided design': 'Grafica e progettazione assistita', 'computer networks and communications': 'Reti e comunicazioni',
+  'computer science applications': 'Applicazioni informatiche', 'computer vision and pattern recognition': 'Visione artificiale e riconoscimento di forme',
+  'hardware and architecture': 'Hardware e architetture', 'human-computer interaction': 'Interazione uomo-macchina', 'information systems': 'Sistemi informativi',
+  'signal processing': 'Elaborazione dei segnali', 'software': 'Software',
+  'general decision sciences': 'Scienze delle decisioni in generale', 'information systems and management': 'Sistemi informativi e gestione',
+  'management science and operations research': 'Ricerca operativa', 'statistics, probability and uncertainty': 'Statistica, probabilità e incertezza',
+  'general earth and planetary sciences': 'Scienze della Terra in generale', 'atmospheric science': "Scienze dell'atmosfera", 'computers in earth sciences': 'Informatica per le scienze della Terra',
+  'earth-surface processes': 'Processi della superficie terrestre', 'economic geology': 'Geologia economica', 'geochemistry and petrology': 'Geochimica e petrologia',
+  'geology': 'Geologia', 'geophysics': 'Geofisica', 'geotechnical engineering and engineering geology': 'Geotecnica e geologia applicata', 'oceanography': 'Oceanografia',
+  'paleontology': 'Paleontologia', 'space and planetary science': 'Scienze spaziali e planetarie', 'stratigraphy': 'Stratigrafia',
+  'general economics, econometrics and finance': 'Economia in generale', 'economics and econometrics': 'Economia ed econometria', 'finance': 'Finanza',
+  'general energy': 'Energia in generale', 'energy engineering and power technology': 'Ingegneria energetica', 'fuel technology': 'Tecnologia dei combustibili',
+  'nuclear energy and engineering': 'Energia e ingegneria nucleare', 'renewable energy, sustainability and the environment': 'Energie rinnovabili e sostenibilità',
+  'general engineering': 'Ingegneria in generale', 'aerospace engineering': 'Ingegneria aerospaziale', 'automotive engineering': 'Ingegneria automobilistica',
+  'biomedical engineering': 'Ingegneria biomedica', 'civil and structural engineering': 'Ingegneria civile e strutturale', 'computational mechanics': 'Meccanica computazionale',
+  'control and systems engineering': 'Ingegneria dei controlli e dei sistemi', 'electrical and electronic engineering': 'Ingegneria elettrica ed elettronica',
+  'industrial and manufacturing engineering': 'Ingegneria industriale e manifatturiera', 'mechanical engineering': 'Ingegneria meccanica', 'mechanics of materials': 'Meccanica dei materiali',
+  'ocean engineering': 'Ingegneria navale e oceanica', 'safety, risk, reliability and quality': 'Sicurezza, rischio e qualità', 'media technology': 'Tecnologie dei media',
+  'building and construction': 'Edilizia e costruzioni', 'architecture': 'Architettura',
+  'general environmental science': 'Scienze ambientali in generale', 'ecological modeling': 'Modelli ecologici', 'ecology': 'Ecologia', 'environmental chemistry': 'Chimica ambientale',
+  'environmental engineering': 'Ingegneria ambientale', 'global and planetary change': 'Cambiamento globale e climatico', 'health, toxicology and mutagenesis': 'Salute, tossicologia e mutagenesi',
+  'management, monitoring, policy and law': 'Gestione, monitoraggio e politiche ambientali', 'nature and landscape conservation': 'Conservazione della natura e del paesaggio',
+  'pollution': 'Inquinamento', 'waste management and disposal': 'Gestione dei rifiuti', 'water science and technology': "Scienze e tecnologie dell'acqua",
+  'general immunology and microbiology': 'Immunologia e microbiologia in generale', 'applied microbiology and biotechnology': 'Microbiologia applicata e biotecnologie',
+  'immunology': 'Immunologia', 'microbiology': 'Microbiologia', 'parasitology': 'Parassitologia', 'virology': 'Virologia',
+  'general materials science': 'Scienza dei materiali in generale', 'biomaterials': 'Biomateriali', 'ceramics and composites': 'Ceramiche e compositi',
+  'electronic, optical and magnetic materials': 'Materiali elettronici, ottici e magnetici', 'materials chemistry': 'Chimica dei materiali', 'metals and alloys': 'Metalli e leghe',
+  'polymers and plastics': 'Polimeri e plastiche', 'surfaces, coatings and films': 'Superfici, rivestimenti e film',
+  'general mathematics': 'Matematica in generale', 'algebra and number theory': 'Algebra e teoria dei numeri', 'analysis': 'Analisi', 'applied mathematics': 'Matematica applicata',
+  'computational mathematics': 'Matematica computazionale', 'control and optimization': 'Controllo e ottimizzazione', 'discrete mathematics and combinatorics': 'Matematica discreta e combinatoria',
+  'geometry and topology': 'Geometria e topologia', 'logic': 'Logica', 'mathematical physics': 'Fisica matematica', 'modeling and simulation': 'Modellizzazione e simulazione',
+  'numerical analysis': 'Analisi numerica', 'statistics and probability': 'Statistica e probabilità', 'theoretical computer science': 'Informatica teorica',
+  'general medicine': 'Medicina in generale', 'anatomy': 'Anatomia', 'anesthesiology and pain medicine': 'Anestesiologia e terapia del dolore', 'biochemistry (medical)': 'Biochimica medica',
+  'cardiology and cardiovascular medicine': 'Cardiologia', 'critical care and intensive care medicine': 'Terapia intensiva', 'complementary and alternative medicine': 'Medicine complementari e alternative',
+  'dermatology': 'Dermatologia', 'drug guides': 'Guide ai farmaci', 'embryology': 'Embriologia', 'emergency medicine': "Medicina d'urgenza",
+  'endocrinology, diabetes and metabolism': 'Endocrinologia, diabete e metabolismo', 'epidemiology': 'Epidemiologia', 'family practice': 'Medicina generale',
+  'gastroenterology': 'Gastroenterologia', 'genetics (clinical)': 'Genetica clinica', 'geriatrics and gerontology': 'Geriatria e gerontologia', 'health informatics': 'Informatica sanitaria',
+  'health policy': 'Politiche sanitarie', 'hematology': 'Ematologia', 'hepatology': 'Epatologia', 'histology': 'Istologia', 'immunology and allergy': 'Immunologia e allergologia',
+  'internal medicine': 'Medicina interna', 'infectious diseases': 'Malattie infettive', 'microbiology (medical)': 'Microbiologia medica', 'nephrology': 'Nefrologia',
+  'neurology (clinical)': 'Neurologia clinica', 'obstetrics and gynecology': 'Ostetricia e ginecologia', 'oncology': 'Oncologia', 'ophthalmology': 'Oftalmologia',
+  'orthopedics and sports medicine': 'Ortopedia e medicina dello sport', 'otorhinolaryngology': 'Otorinolaringoiatria', 'pathology and forensic medicine': 'Patologia e medicina legale',
+  'pediatrics, perinatology and child health': 'Pediatria e perinatologia', 'pharmacology (medical)': 'Farmacologia medica', 'physiology (medical)': 'Fisiologia medica',
+  'psychiatry and mental health': 'Psichiatria e salute mentale', 'public health, environmental and occupational health': 'Salute pubblica, ambientale e del lavoro',
+  'pulmonary and respiratory medicine': 'Pneumologia', 'radiology, nuclear medicine and imaging': 'Radiologia e diagnostica per immagini', 'rehabilitation': 'Riabilitazione',
+  'reproductive medicine': 'Medicina della riproduzione', 'rheumatology': 'Reumatologia', 'surgery': 'Chirurgia', 'transplantation': 'Trapianti', 'urology': 'Urologia',
+  'general neuroscience': 'Neuroscienze in generale', 'behavioral neuroscience': 'Neuroscienze comportamentali', 'biological psychiatry': 'Psichiatria biologica',
+  'cellular and molecular neuroscience': 'Neuroscienze cellulari e molecolari', 'cognitive neuroscience': 'Neuroscienze cognitive', 'developmental neuroscience': 'Neuroscienze dello sviluppo',
+  'endocrine and autonomic systems': 'Sistemi endocrino e autonomo', 'neurology': 'Neurologia', 'sensory systems': 'Sistemi sensoriali',
+  'general pharmacology, toxicology and pharmaceutics': 'Farmacologia in generale', 'drug discovery': 'Scoperta di farmaci', 'pharmaceutical science': 'Scienze farmaceutiche',
+  'pharmacology': 'Farmacologia', 'toxicology': 'Tossicologia',
+  'general physics and astronomy': 'Fisica e astronomia in generale', 'acoustics and ultrasonics': 'Acustica e ultrasuoni', 'astronomy and astrophysics': 'Astronomia e astrofisica',
+  'condensed matter physics': 'Fisica della materia condensata', 'instrumentation': 'Strumentazione', 'nuclear and high energy physics': 'Fisica nucleare e delle alte energie',
+  'atomic and molecular physics, and optics': 'Fisica atomica e molecolare, ottica', 'radiation': 'Radiazioni', 'statistical and nonlinear physics': 'Fisica statistica e non lineare',
+  'surfaces and interfaces': 'Superfici e interfacce',
+  'general psychology': 'Psicologia in generale', 'applied psychology': 'Psicologia applicata', 'clinical psychology': 'Psicologia clinica',
+  'developmental and educational psychology': "Psicologia dello sviluppo e dell'educazione", 'experimental and cognitive psychology': 'Psicologia sperimentale e cognitiva',
+  'neuropsychology and physiological psychology': 'Neuropsicologia e psicologia fisiologica', 'social psychology': 'Psicologia sociale',
+  'general social sciences': 'Scienze sociali in generale', 'development': 'Studi sullo sviluppo', 'education': 'Educazione', 'geography, planning and development': 'Geografia e pianificazione',
+  'health (social science)': 'Salute e società', 'human factors and ergonomics': 'Fattori umani ed ergonomia', 'law': 'Diritto',
+  'library and information sciences': "Biblioteconomia e scienze dell'informazione", 'linguistics and language': 'Linguistica', 'safety research': 'Ricerca sulla sicurezza',
+  'sociology and political science': 'Sociologia e scienze politiche', 'transportation': 'Trasporti', 'anthropology': 'Antropologia', 'communication': 'Comunicazione',
+  'cultural studies': 'Studi culturali', 'demography': 'Demografia', 'gender studies': 'Studi di genere', 'life-span and life-course studies': 'Studi sul ciclo di vita',
+  'political science and international relations': 'Scienze politiche e relazioni internazionali', 'public administration': 'Pubblica amministrazione', 'urban studies': 'Studi urbani',
+  'general veterinary': 'Veterinaria in generale', 'equine': 'Equini', 'food animals': 'Animali da reddito', 'small animals': 'Piccoli animali',
+  'general dentistry': 'Odontoiatria in generale', 'oral surgery': 'Chirurgia orale', 'orthodontics': 'Ortodonzia', 'periodontics': 'Parodontologia',
+  'dental assisting': 'Assistenza odontoiatrica', 'dental hygiene': 'Igiene dentale',
+  'general health professions': 'Professioni sanitarie in generale', 'physical therapy, sports therapy and rehabilitation': 'Fisioterapia e riabilitazione',
+  'speech and hearing': 'Linguaggio e udito', 'pharmacy': 'Farmacia', 'optometry': 'Optometria', 'occupational therapy': 'Terapia occupazionale',
+  'medical laboratory technology': 'Tecniche di laboratorio medico', 'emergency medical services': 'Servizi di emergenza',
+  'complementary and manual therapy': 'Terapie manuali e complementari', 'radiological and ultrasound technology': 'Tecniche radiologiche ed ecografiche',
+  'respiratory care': 'Terapia respiratoria', 'health information management': 'Gestione delle informazioni sanitarie', 'medical terminology': 'Terminologia medica',
+  'medical assisting and transcription': 'Assistenza e trascrizione medica', 'chiropractics': 'Chiropratica', 'podiatry': 'Podologia'
 };
 
 const GIST_DESC = 'Wunderkammer: sincronizzazione articoli';
 const GIST_FILE = 'wunderkammer.json';
 
-/* ---------- Storage ---------- */
+/* =========================================================
+   Storage and state
+   ========================================================= */
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
   del(k) { try { localStorage.removeItem(k); } catch (e) {} }
 };
-const defaultPrefs = () => ({ t: 0, topics: TOPICS.map(t => t.id), mode: 'sorpresa', big: false, oa: false });
 
 let state = store.get('wk-state', null);
-if (!state || typeof state !== 'object' || !state.items || typeof state.items !== 'object') state = { items: {}, prefs: defaultPrefs() };
+if (!state || typeof state !== 'object' || !state.items || typeof state.items !== 'object') state = { items: {} };
+state.favs = cleanFavs(state.favs) || DEFAULT_FAVS.map(f => Object.assign({}, f));
+state.favsT = Number(state.favsT) || 0;
 state.prefs = cleanPrefs(state.prefs) || defaultPrefs();
+
 let apiKey = store.get('wk-key', '') || '';
 let keyless = !!store.get('wk-keyless', false);
 let gh = store.get('wk-gh', null) || { token: '', gist: '', last: 0 };
-let meta = store.get('wk-meta', null) || { counts: {}, next: {}, minimal: false };
-if (!meta.counts) meta.counts = {};
-if (!meta.next) meta.next = {};
+let meta = store.get('wk-meta', null) || {};
+meta.counts = meta.counts || {}; meta.next = meta.next || {}; meta.minimal = !!meta.minimal;
+let tax = store.get('wk-tax', null) || {};
+tax.fields = tax.fields || {}; tax.subNames = tax.subNames || {};
+let ai = store.get('wk-ai', null) || {};
+ai.provider = ai.provider === 'openrouter' ? 'openrouter' : 'gemini';
+for (const p of ['gemini', 'openrouter']) ai[p] = Object.assign({ key: '', model: '', models: [] }, ai[p] || {});
 
+function defaultPrefs() { return { t: 0, topics: state.favs.map(f => f.id), mode: 'sorpresa', big: false, oa: false, intro: false }; }
+function cleanPrefs(p) {
+  if (!p || typeof p !== 'object') return null;
+  const ids = state.favs.map(f => f.id);
+  return {
+    t: Number(p.t) || 0,
+    topics: Array.isArray(p.topics) ? p.topics.filter(x => ids.includes(x)) : ids,
+    mode: MODES[p.mode] ? p.mode : 'sorpresa',
+    big: !!p.big, oa: !!p.oa, intro: !!p.intro
+  };
+}
+function cleanFavs(arr) {
+  if (!Array.isArray(arr)) return null;
+  const out = [], seen = new Set();
+  for (const f of arr) {
+    if (!f || typeof f !== 'object') continue;
+    const id = String(f.id || '').slice(0, 40);
+    if (!id || seen.has(id)) continue;
+    const kind = ['q', 'field', 'subfield', 'topic'].includes(f.kind) ? f.kind : null;
+    if (!kind) continue;
+    const g = { id, kind, name: String(f.name || '').slice(0, 90) || id };
+    if (kind === 'q') {
+      g.q = String(f.q || '').slice(0, 500);
+      if (!g.q) continue;
+      g.fields = /^[\d|]*$/.test(f.fields || '') ? (f.fields || '') : '';
+    } else {
+      g.oa = String(f.oa || '');
+      if (!/^T?\d+$/.test(g.oa)) continue;
+    }
+    seen.add(id); out.push(g);
+  }
+  return out;
+}
 function persist() { store.set('wk-state', state); }
 function saveState() { persist(); scheduleSync(); }
+function saveAI() { store.set('wk-ai', ai); }
+function aiCfg() { return ai[ai.provider]; }
+function aiReady() { const c = aiCfg(); return !!(c.key && c.model); }
 
-/* ---------- Helpers ---------- */
+/* =========================================================
+   Helpers
+   ========================================================= */
 const $ = (s, r = document) => r.querySelector(s);
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -432,24 +762,22 @@ function cleanText(s) {
   s = decodeEntities(s).replace(/\s+/g, ' ').trim();
   return s.replace(/^(abstract|summary|riassunto)[\s:.\-–—]+/i, '');
 }
+const short = id => String(id || '').split('/').pop();
+const trunc = (s, n) => { s = String(s || ''); return s.length > n ? s.slice(0, n - 1).trimEnd() + '…' : s; };
+const subIt = name => (name ? SUB_IT[String(name).toLowerCase()] || name : '');
 const fmtNum = n => Number(n || 0).toLocaleString('it-IT');
 const fmtDate = ts => new Date(ts).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
 const fmtTime = ts => new Date(ts).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-function isoDaysAgo(days) { const d = new Date(Date.now() - days * 864e5); return d.toISOString().slice(0, 10); }
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-function cleanPrefs(p) {
-  if (!p || typeof p !== 'object') return null;
-  const ids = TOPICS.map(t => t.id);
-  return {
-    t: Number(p.t) || 0,
-    topics: Array.isArray(p.topics) ? p.topics.filter(x => ids.includes(x)) : ids,
-    mode: MODES[p.mode] ? p.mode : 'sorpresa',
-    big: !!p.big, oa: !!p.oa
-  };
+function fmtCount(n) {
+  n = Number(n) || 0;
+  if (n >= 1e6) return (n / 1e6).toFixed(1).replace('.', ',') + ' milioni di articoli';
+  if (n >= 1e4) return Math.round(n / 1000) + ' mila articoli';
+  return fmtNum(n) + ' articoli';
 }
+function isoDaysAgo(days) { return new Date(Date.now() - days * 864e5).toISOString().slice(0, 10); }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function setStatus(sel, msg, cls) { const s = typeof sel === 'string' ? $(sel) : sel; s.textContent = msg || ''; s.className = (s.classList.contains('feed-status') ? 'feed-status' : 'status') + (cls ? ' ' + cls : ''); }
 
-/* ---------- Toast ---------- */
 let toastTimer;
 function toast(msg, actionText, action) {
   const t = $('#toast');
@@ -465,16 +793,26 @@ function toast(msg, actionText, action) {
   toastTimer = setTimeout(() => { t.hidden = true; }, 5500);
 }
 
-/* ---------- Article records ---------- */
+/* =========================================================
+   Article records, ratings and taste scores
+   ========================================================= */
+const itemCache = new Map();
 function rec(id) { return state.items[id]; }
 function isKnown(id) { const r = rec(id); return !!(r && (r.read || r.hidden || r.saved)); }
+function isHidden(id) { const r = rec(id); return !!(r && r.hidden); }
 
-function setFlag(item, flag, value) {
+function slim(item) {
+  const m = {};
+  for (const k of ['id', 'title', 'journal', 'year', 'authors', 'url', 'pdf', 'cites', 'oa', 'review', 'abstract', 'topicId', 'topicName', 'subfieldId', 'subfieldName', 'fieldId', 'topic']) {
+    if (item[k] !== undefined && item[k] !== '') m[k] = item[k];
+  }
+  return m;
+}
+function update(item, patch) {
   const cur = rec(item.id) || {};
-  const next = Object.assign({}, cur, { id: item.id, t: Date.now() });
-  next[flag] = !!value;
-  if (flag === 'read') next.readAt = value ? Date.now() : null;
-  const m = Object.assign({}, cur.m || {}, item);
+  const next = Object.assign({}, cur, patch, { id: item.id, t: Date.now() });
+  if ('read' in patch) next.readAt = patch.read ? (cur.readAt || Date.now()) : null;
+  const m = Object.assign({}, cur.m || {}, slim(item));
   if (!next.saved) delete m.abstract;
   next.m = m;
   state.items[item.id] = next;
@@ -482,27 +820,19 @@ function setFlag(item, flag, value) {
   return next;
 }
 
-/* ---------- OpenAlex ---------- */
-function qkey(t) { const p = state.prefs; return [t.id, p.mode, p.big ? 'b' : '', p.oa ? 'o' : ''].join('|'); }
-
-function buildUrl(t, page, per, minimal) {
-  const p = state.prefs;
-  const f = ['type:article|review', 'has_abstract:true'];
-  if (!minimal) f.push('is_retracted:false', 'is_paratext:false', 'language:en|it');
-  if (t.fields) f.push('primary_topic.field.id:' + t.fields);
-  let sort = '';
-  if (p.mode === 'sorpresa') f.push('cited_by_count:>40');
-  if (p.mode === 'recenti') { f.push('from_publication_date:' + isoDaysAgo(548)); sort = 'cited_by_count:desc'; }
-  if (p.mode === 'classici') { f.push('to_publication_date:' + isoDaysAgo(3 * 365)); sort = 'cited_by_count:desc'; }
-  if (p.big) f.push('primary_location.source.issn:' + ISSNS);
-  if (p.oa) f.push('open_access.is_oa:true');
-  const parts = [['search', t.q], ['filter', f.join(',')], ['per_page', per], ['page', page]];
-  if (sort) parts.push(['sort', sort]);
-  if (!minimal) parts.push(['select', SELECT]);
-  if (apiKey) parts.push(['api_key', apiKey]);
-  return API + '/works?' + parts.map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&');
+function scores() {
+  const topics = {}, subs = {};
+  for (const r of Object.values(state.items)) {
+    if (!r || typeof r.rating !== 'number' || !r.m) continue;
+    if (r.m.topicId) { const t = topics[r.m.topicId] || (topics[r.m.topicId] = { score: 0, name: r.m.topicName || '' }); t.score += r.rating; }
+    if (r.m.subfieldId) { const s = subs[r.m.subfieldId] || (subs[r.m.subfieldId] = { score: 0, name: r.m.subfieldName || '' }); s.score += r.rating; }
+  }
+  return { topics, subs };
 }
 
+/* =========================================================
+   OpenAlex
+   ========================================================= */
 async function getJSON(url) {
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 20000);
@@ -515,36 +845,56 @@ async function getJSON(url) {
   if (!r.ok) throw { kind: 'http', status: r.status };
   return r.json();
 }
-
-async function query(t, page, per) {
-  try { return await getJSON(buildUrl(t, page, per, meta.minimal)); }
+function oaGet(path, params = {}) {
+  const q = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '' && v !== 0);
+  if (apiKey) q.push(['api_key', apiKey]);
+  return getJSON(API + path + (q.length ? '?' + q.map(([k, v]) => k + '=' + encodeURIComponent(v)).join('&') : ''));
+}
+function worksParams(o) {
+  const p = { filter: o.filters.filter(Boolean).join(','), per_page: o.per || PER_PAGE, page: o.page || 1 };
+  if (o.search) p.search = o.search;
+  if (o.sort) p.sort = o.sort;
+  if (o.sample) { p.sample = o.sample; p.seed = o.seed || 1; }
+  if (!meta.minimal) p.select = SELECT;
+  return p;
+}
+// build() is called again after switching to "minimal" filters if OpenAlex rejects one of the optional ones.
+async function worksQ(build) {
+  try { return await oaGet('/works', worksParams(build())); }
   catch (e) {
-    if (e && e.kind === 'http' && e.status === 400 && !meta.minimal) {
-      meta.minimal = true;
-      return await getJSON(buildUrl(t, page, per, true));
-    }
-    throw e;
+    if (!(e && e.kind === 'http' && e.status === 400) || meta.minimal) throw e;
+    meta.minimal = true;
+    try {
+      const data = await oaGet('/works', worksParams(build()));
+      store.set('wk-meta', meta);
+      return data;
+    } catch (e2) { meta.minimal = false; throw e2; }
   }
 }
-
-function pickPage(key, mode) {
-  if (mode === 'classici') return meta.next[key] || 1;
-  const count = meta.counts[key];
-  const maxPages = mode === 'sorpresa' ? 50 : 12;
-  if (count == null) return 1 + Math.floor(Math.random() * 3);
-  const pages = Math.max(1, Math.min(maxPages, Math.ceil(count / PER_PAGE)));
-  return 1 + Math.floor(Math.random() * pages);
+function commonFilters(o = {}) {
+  const p = state.prefs, useToggles = o.toggles !== false;
+  const f = [useToggles && p.intro ? 'type:review' : 'type:article|review'];
+  if (o.abstract !== false) f.push('has_abstract:true');
+  if (!meta.minimal) f.push('is_retracted:false', 'language:en|it');
+  if (useToggles && p.big) f.push('primary_location.source.issn:' + ISSNS);
+  if (useToggles && p.oa) f.push('open_access.is_oa:true');
+  return f;
 }
-
-async function fetchTopic(t) {
-  const mode = state.prefs.mode, key = qkey(t);
-  let page = pickPage(key, mode);
-  let data = await query(t, page, PER_PAGE);
-  if ((!data.results || !data.results.length) && page > 1) { page = 1; data = await query(t, 1, PER_PAGE); }
-  const results = data.results || [];
-  if (data.meta && typeof data.meta.count === 'number') meta.counts[key] = data.meta.count;
-  if (mode === 'classici') meta.next[key] = results.length < PER_PAGE ? 1 : page + 1;
-  return results.map(r => toItem(r, t)).filter(it => it.id && it.title);
+function modeFilters(mode) {
+  if (mode === 'recenti') return { f: ['from_publication_date:' + isoDaysAgo(548)], sort: 'cited_by_count:desc' };
+  if (mode === 'classici') return { f: ['to_publication_date:' + isoDaysAgo(1095)], sort: 'cited_by_count:desc' };
+  if (mode === 'sorpresa') return { f: [meta.minimal ? 'cited_by_count:>20' : 'citation_normalized_percentile.is_in_top_10_percent:true'], sort: '' };
+  return { f: [], sort: '' };
+}
+function sourceFilter(src) {
+  switch (src.kind) {
+    case 'q': return { search: src.q, f: src.fields ? ['primary_topic.field.id:' + src.fields] : [] };
+    case 'field': return { f: ['primary_topic.field.id:' + src.oa] };
+    case 'subfield': return { f: ['primary_topic.subfield.id:' + src.oa] };
+    case 'topic': return { f: ['primary_topic.id:' + src.oa] };
+    case 'rel': return { f: ['related_to:' + src.oa] };
+    default: return { f: [] };
+  }
 }
 
 function abstractFrom(inv) {
@@ -553,21 +903,20 @@ function abstractFrom(inv) {
   for (const [w, positions] of Object.entries(inv)) for (const p of positions) words[p] = w;
   return words.filter(Boolean).join(' ');
 }
-
 function fmtAuthors(auth) {
   const names = (auth || []).map(a => a && a.author && a.author.display_name).filter(Boolean);
   if (!names.length) return '';
   if (names.length <= 3) return names.join(', ');
   return names.slice(0, 2).join(', ') + ' e altri ' + (names.length - 2);
 }
-
-function toItem(r, t) {
+function toItem(r, label) {
   const pl = r.primary_location || {};
+  const pt = r.primary_topic || {};
   const url = safeUrl(r.doi) || safeUrl(pl.landing_page_url) || safeUrl(r.id);
   let pdf = (r.best_oa_location && safeUrl(r.best_oa_location.pdf_url)) || (r.open_access && safeUrl(r.open_access.oa_url)) || null;
   if (pdf && pdf === url) pdf = null;
   return {
-    id: String(r.id || '').replace('https://openalex.org/', ''),
+    id: short(r.id),
     title: cleanText(r.display_name),
     journal: cleanText(pl.source && pl.source.display_name),
     year: r.publication_year || null,
@@ -575,38 +924,281 @@ function toItem(r, t) {
     url, pdf,
     cites: typeof r.cited_by_count === 'number' ? r.cited_by_count : null,
     oa: !!(r.open_access && r.open_access.is_oa),
-    topic: t.name,
-    abstract: cleanText(abstractFrom(r.abstract_inverted_index))
+    review: r.type === 'review',
+    abstract: cleanText(abstractFrom(r.abstract_inverted_index)),
+    topicId: pt.id ? short(pt.id) : '',
+    topicName: pt.display_name || '',
+    subfieldId: pt.subfield ? short(pt.subfield.id) : '',
+    subfieldName: pt.subfield ? pt.subfield.display_name || '' : '',
+    fieldId: pt.field ? short(pt.field.id) : '',
+    label: label || ''
   };
 }
+function toItems(data, label) { return ((data && data.results) || []).map(r => toItem(r, label)).filter(it => /^W\d+$/.test(it.id) && it.title); }
 
 function errorCopy(e) {
+  if (e && e.kind === 'ai') return aiErrorCopy(e);
   if (e && e.kind === 'key') return 'OpenAlex non accetta la chiave. Controllala in Impostazioni.';
   if (e && e.kind === 'limit') return apiKey
-    ? 'Hai usato tutte le richieste gratuite di oggi. Si ricaricano domani.'
-    : 'Le richieste senza chiave sono finite per oggi. Aggiungi una chiave gratuita in Impostazioni per averne molte di più.';
+    ? 'Hai usato tutte le richieste gratuite di oggi su OpenAlex. Si ricaricano domani.'
+    : 'Le richieste senza chiave sono finite per oggi. Aggiungi una chiave OpenAlex gratuita in Impostazioni.';
+  if (e && e.kind === 'http' && e.status === 400) return 'OpenAlex non ha capito la richiesta. Prova con parole più semplici.';
   if (e && e.kind === 'http') return 'OpenAlex ha risposto con un errore (' + e.status + '). Riprova tra poco.';
   return 'Non riesco a raggiungere OpenAlex. Controlla la connessione e riprova.';
 }
 
-/* ---------- Feed ---------- */
-let shown = new Set(), feedCount = 0, loading = false, feedGen = 0, lastPicked = [], feedError = false;
+/* =========================================================
+   AI providers (key stays on this device)
+   ========================================================= */
+const AI_SYSTEM = [
+  "Sei l'assistente di Wunderkammer, un'app che aiuta uno studente universitario a scoprire articoli scientifici veri presi dal catalogo OpenAlex.",
+  'Regole che non puoi violare:',
+  '1. Non inventare mai articoli, titoli, autori, riviste, numeri o risultati.',
+  "2. Quando ricevi degli articoli, usa solo ciò che è scritto nel loro titolo e nel loro abstract, senza aggiungere conoscenze esterne.",
+  "3. Puoi indicare solo id presenti nell'elenco che ricevi.",
+  '4. Se non sei sicuro, preferisci non rispondere: lascia la lista vuota o il valore null.',
+  '5. Rispondi esclusivamente con un oggetto JSON valido nel formato richiesto, senza testo prima o dopo.'
+].join('\n');
 
-function pickTopics(sel, n) {
-  const fresh = sel.filter(t => !lastPicked.includes(t.id));
-  const pool = (fresh.length >= n ? fresh : sel).slice();
-  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
-  const picks = pool.slice(0, n);
-  lastPicked = picks.map(t => t.id);
-  return picks;
+async function aiFetch(url, opts) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 90000);
+  let r;
+  try { r = await fetch(url, Object.assign({}, opts, { signal: ctl.signal })); }
+  catch (e) { throw { kind: 'ai', code: 'net' }; }
+  finally { clearTimeout(timer); }
+  let data = null;
+  try { data = await r.json(); } catch (e) { data = null; }
+  if (!r.ok) {
+    const msg = data && data.error ? (data.error.message || JSON.stringify(data.error)) : '';
+    let code = 'http';
+    if (r.status === 401 || r.status === 403 || (r.status === 400 && /api.?key/i.test(msg))) code = 'key';
+    else if (r.status === 429) code = 'limit';
+    else if (r.status === 402) code = 'credits';
+    else if (r.status === 404) code = 'model';
+    else if (r.status >= 500) code = 'busy';
+    throw { kind: 'ai', code, status: r.status };
+  }
+  return data;
 }
 
+const AIP = {
+  gemini: {
+    steps: [
+      ['Apri ', ['Google AI Studio', 'https://aistudio.google.com/apikey'], ' e accedi con un account Google.'],
+      ['Tocca «Create API key» e copia la chiave.'],
+      ['Incollala qui sotto e tocca «Salva e prova».']
+    ],
+    note: 'Nel piano gratuito Google può usare i testi inviati per migliorare i suoi servizi. Wunderkammer invia solo le tue domande e abstract già pubblici. I limiti gratuiti bastano per un uso personale.',
+    async models(key) {
+      const data = await aiFetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': key } });
+      return ((data && data.models) || [])
+        .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+        .map(m => ({ id: String(m.name || '').replace(/^models\//, ''), label: m.displayName || m.name }))
+        .filter(m => /flash/i.test(m.id) && !/(image|tts|audio|live|embed|vision|exp)/i.test(m.id));
+    },
+    pick(models) {
+      const ver = id => parseFloat((id.match(/gemini-(\d+(?:\.\d+)?)/) || [])[1] || 0);
+      const by = re => models.filter(m => re.test(m.id)).sort((a, b) => ver(b.id) - ver(a.id))[0];
+      const m = by(/^gemini-[\d.]+-flash$/) || by(/^gemini-[\d.]+-flash-lite$/) || by(/flash/) || models[0];
+      return m ? m.id : 'gemini-2.5-flash';
+    },
+    fallback: 'gemini-2.5-flash',
+    async chat(key, model, system, user) {
+      const body = {
+        systemInstruction: { parts: [{ text: system }] },
+        contents: [{ role: 'user', parts: [{ text: user }] }],
+        generationConfig: { temperature: 0.2, responseMimeType: 'application/json' }
+      };
+      const data = await aiFetch('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify(body)
+      });
+      const cand = data && data.candidates && data.candidates[0];
+      if (!cand) throw { kind: 'ai', code: data && data.promptFeedback && data.promptFeedback.blockReason ? 'blocked' : 'empty' };
+      const parts = (cand.content && cand.content.parts) || [];
+      return parts.filter(p => !p.thought).map(p => p.text || '').join('');
+    }
+  },
+  openrouter: {
+    steps: [
+      ['Crea un account gratuito su ', ['openrouter.ai', 'https://openrouter.ai'], '.'],
+      ['Apri la ', ['pagina delle chiavi', 'https://openrouter.ai/keys'], ' e crea una chiave.'],
+      ['Incollala qui sotto e tocca «Salva e prova»: compariranno solo i modelli gratuiti.']
+    ],
+    note: "I modelli gratuiti di OpenRouter cambiano spesso, hanno pochi utilizzi al giorno e a volte sono lenti. Se uno smette di funzionare, scegline un altro dall'elenco.",
+    async models() {
+      const data = await aiFetch('https://openrouter.ai/api/v1/models', {});
+      const list = ((data && data.data) || [])
+        .filter(m => /:free$/.test(m.id || '') && (m.context_length || 0) >= 32000)
+        .map(m => ({ id: m.id, label: m.name || m.id }));
+      list.unshift({ id: 'openrouter/free', label: 'Scelta automatica tra i modelli gratuiti' });
+      return list;
+    },
+    pick(models) { const m = models.find(x => x.id === 'openrouter/free') || models[0]; return m ? m.id : 'openrouter/free'; },
+    fallback: 'openrouter/free',
+    async chat(key, model, system, user) {
+      const data = await aiFetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key, 'X-Title': 'Wunderkammer' },
+        body: JSON.stringify({ model, temperature: 0.2, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] })
+      });
+      const msg = data && data.choices && data.choices[0] && data.choices[0].message;
+      if (!msg) throw { kind: 'ai', code: 'empty' };
+      return typeof msg.content === 'string' ? msg.content : '';
+    }
+  }
+};
+
+function parseLoose(t) {
+  if (!t) return null;
+  t = String(t).trim();
+  try { return JSON.parse(t); } catch (e) {}
+  const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence) { try { return JSON.parse(fence[1]); } catch (e) {} }
+  const a = t.indexOf('{'), b = t.lastIndexOf('}');
+  if (a >= 0 && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch (e) {} }
+  return null;
+}
+async function aiJSON(user) {
+  const cfg = aiCfg();
+  if (!cfg.key || !cfg.model) throw { kind: 'ai', code: 'nokey' };
+  const text = await AIP[ai.provider].chat(cfg.key, cfg.model, AI_SYSTEM, user);
+  const obj = parseLoose(text);
+  if (!obj || typeof obj !== 'object') throw { kind: 'ai', code: 'json' };
+  return obj;
+}
+function aiErrorCopy(e) {
+  switch (e && e.code) {
+    case 'nokey': return "Collega prima l'assistente AI in Impostazioni.";
+    case 'key': return "Il servizio AI non accetta la chiave. Controllala in Impostazioni.";
+    case 'limit': return "Hai raggiunto il limite gratuito dell'AI per ora. Riprova tra qualche minuto, o domani.";
+    case 'credits': return 'Questo modello di OpenRouter non è gratuito. Scegline un altro in Impostazioni.';
+    case 'model': return 'Il modello scelto non è più disponibile. Scegline un altro in Impostazioni.';
+    case 'busy': return 'Il servizio AI è sovraccarico. Riprova tra poco.';
+    case 'blocked': return "L'AI si è rifiutata di rispondere a questa richiesta. Prova a riformularla.";
+    case 'json': case 'empty': return "L'AI ha dato una risposta non valida. Riprova.";
+    case 'net': return ai.provider === 'gemini'
+      ? 'Non riesco a raggiungere Gemini. Controlla la connessione; se il problema resta, prova OpenRouter in Impostazioni.'
+      : 'Non riesco a raggiungere il servizio AI. Controlla la connessione.';
+    default: return "Qualcosa è andato storto con l'AI. Riprova.";
+  }
+}
+
+// Guardrail: every number the AI writes must appear in the text it was given.
+function numbersOk(text, source) {
+  const nums = String(text).match(/\d+(?:[.,]\d+)*/g) || [];
+  const src = String(source).replace(/(\d)[,.](?=\d)/g, '$1');
+  return nums.every(n => src.includes(n.replace(/[.,]/g, '')));
+}
+function aiArticleLines(cands, max) {
+  return cands.map((c, i) => '[' + (i + 1) + '] id=' + c.id + ' | ' + (c.year || 's.d.') + ' | ' + (c.journal || 'rivista non indicata') +
+    '\nTitolo: ' + c.title + '\nAbstract: ' + trunc(c.abstract || '(assente)', max)).join('\n\n');
+}
+function planPrompt(text) {
+  return [
+    "Richiesta dell'utente:", '"""' + text.slice(0, 1000) + '"""', '',
+    'Trasformala in ricerche per OpenAlex. Nel catalogo titoli e abstract sono quasi sempre in inglese.',
+    'Rispondi con questo JSON:',
+    '{"queries": ["..."], "from_year": null, "to_year": null, "reviews_only": false, "summary_it": "..."}',
+    '- queries: da 1 a 3 ricerche in inglese, ciascuna di 2-6 parole chiave. Puoi usare OR tra sinonimi e le virgolette per le espressioni fisse, per esempio: "vocal learning" OR "song learning" birds. Non usare altri operatori o simboli.',
+    '- La prima ricerca è la più fedele alla richiesta; le altre la allargano con sinonimi o termini tecnici.',
+    "- from_year e to_year: numeri solo se l'utente indica un periodo, altrimenti null.",
+    "- reviews_only: true solo se l'utente chiede una panoramica, una rassegna o qualcosa da cui iniziare.",
+    '- summary_it: una frase in italiano che dice cosa cercherai.'
+  ].join('\n');
+}
+function choosePrompt(text, cands) {
+  return [
+    "Richiesta dell'utente:", '"""' + text.slice(0, 1000) + '"""', '',
+    'Articoli trovati su OpenAlex:', aiArticleLines(cands, 700), '',
+    "Scegli fino a 5 articoli che rispondono meglio alla richiesta, dal più pertinente al meno. Usa solo id dell'elenco.",
+    'Per ognuno scrivi "why": una o due frasi in italiano che dicono cosa studia l\'articolo e perché è pertinente, basandoti solo su titolo e abstract. Non aggiungere numeri, nomi o conclusioni che non compaiono. Se l\'abstract è prudente ("suggest", "may"), resta prudente.',
+    'Se nessun articolo è davvero pertinente, restituisci "picks": [] e in "note_it" suggerisci in italiano come riformulare la richiesta.',
+    'JSON: {"picks": [{"id": "W123", "why": "..."}], "note_it": null}'
+  ].join('\n');
+}
+function factsPrompt(cands) {
+  return [
+    'Per ogni articolo qui sotto scrivi una curiosità in italiano che faccia venire voglia di leggerlo.',
+    'Regole:',
+    '- Una sola frase, al massimo 30 parole, vivace ma precisa.',
+    "- Deve riportare un risultato o un fatto dichiarato nell'abstract. Niente conoscenze esterne: nessun numero, nome di specie, luogo o dettaglio che non compaia nell'abstract.",
+    '- Mantieni la prudenza dell\'abstract: se dice "suggests" o "may", scrivi "sembra" o "potrebbe".',
+    '- Non citare il titolo e non cominciare con "Questo studio" o "I ricercatori".',
+    '- Se l\'abstract non contiene un fatto concreto e sorprendente, scrivi "fact": null.',
+    'JSON: {"facts": [{"id": "W123", "fact": "..."}]}', '',
+    'Articoli:', aiArticleLines(cands, 1100)
+  ].join('\n');
+}
+
+/* =========================================================
+   Sources (favourites, liked articles) and page picking
+   ========================================================= */
+function selectedFavs() { return state.favs.filter(f => state.prefs.topics.includes(f.id)); }
+function likedRecords() {
+  return Object.values(state.items).filter(r => r && r.m && typeof r.rating === 'number' && r.rating >= 1)
+    .sort((a, b) => (b.rating - a.rating) || ((b.ratedAt || 0) - (a.ratedAt || 0)));
+}
+function forYouSources() {
+  const srcs = likedRecords().slice(0, 12).map(r => ({
+    id: 'rel-' + r.id, kind: 'rel', oa: r.id, w: r.rating,
+    name: 'Simile a «' + trunc(r.m.title, 70) + '»'
+  }));
+  const sc = scores();
+  for (const [tid, s] of Object.entries(sc.topics)) {
+    if (s.score > 0) srcs.push({ id: 'top-' + tid, kind: 'topic', oa: tid, w: s.score, name: s.name || 'Un argomento che ti piace' });
+  }
+  return srcs;
+}
+let lastPicked = [];
+function pickSources(srcs, n) {
+  const pool = srcs.map(s => ({ s, w: Math.max(0.2, s.w || 1) * (lastPicked.includes(s.id) ? 0.3 : 1) }));
+  const out = [];
+  while (out.length < n && pool.length) {
+    const total = pool.reduce((a, p) => a + p.w, 0);
+    let r = Math.random() * total, i = 0;
+    for (; i < pool.length - 1; i++) { r -= pool[i].w; if (r <= 0) break; }
+    out.push(pool.splice(i, 1)[0].s);
+  }
+  lastPicked = out.map(s => s.id);
+  return out;
+}
+function pickPage(key, mode) {
+  if (mode === 'classici') return meta.next[key] || 1;
+  const count = meta.counts[key];
+  const maxPages = mode === 'sorpresa' ? 50 : mode === 'recenti' ? 12 : 10;
+  if (count == null) return 1 + Math.floor(Math.random() * 3);
+  const pages = Math.max(1, Math.min(maxPages, Math.ceil(count / PER_PAGE)));
+  return 1 + Math.floor(Math.random() * pages);
+}
+async function fetchSource(src, modeOverride) {
+  const pmode = modeOverride || state.prefs.mode;
+  const mode = pmode === 'perte' ? (src.kind === 'rel' ? 'none' : 'sorpresa') : pmode;
+  const p = state.prefs;
+  const key = [src.id, src.oa || '', mode, p.big ? 'b' : '', p.oa ? 'o' : '', p.intro ? 'i' : ''].join('|');
+  const build = pg => () => {
+    const sf = sourceFilter(src), mf = modeFilters(mode);
+    return { search: sf.search, filters: [...commonFilters(), ...sf.f, ...mf.f], sort: mf.sort, page: pg, per: PER_PAGE };
+  };
+  let page = pickPage(key, mode);
+  let data = await worksQ(build(page));
+  if (!(data.results || []).length && page > 1) { page = 1; data = await worksQ(build(1)); }
+  const results = data.results || [];
+  if (data.meta && typeof data.meta.count === 'number') meta.counts[key] = data.meta.count;
+  if (mode === 'classici') meta.next[key] = results.length < PER_PAGE ? 1 : page + 1;
+  return toItems(data, src.name);
+}
 function interleave(lists) {
   const out = [];
   const max = Math.max(0, ...lists.map(l => l.length));
   for (let i = 0; i < max; i++) for (const l of lists) if (l[i]) out.push(l[i]);
   return out;
 }
+
+/* =========================================================
+   Feed
+   ========================================================= */
+let feedShown = new Set(), feedCount = 0, feedLoading = false, feedGen = 0, feedError = false;
 
 function setFeedStatus(msg, opts = {}) {
   const s = $('#feed-status');
@@ -616,44 +1208,51 @@ function setFeedStatus(msg, opts = {}) {
   more.hidden = !opts.more;
   more.textContent = opts.retry ? 'Riprova' : 'Carica altri articoli';
 }
-
-function updateOnboard() {
-  $('#onboard').hidden = !!(apiKey || keyless);
-}
+function updateOnboard() { $('#onboard').hidden = !!(apiKey || keyless); }
 
 function resetFeed() {
-  feedGen++; loading = false; shown = new Set(); feedCount = 0; feedError = false;
+  feedGen++; feedLoading = false; feedShown = new Set(); feedCount = 0; feedError = false;
   $('#feed-list').textContent = '';
   setFeedStatus('');
   loadMore();
 }
 
 async function loadMore() {
-  if (loading) return;
+  if (feedLoading) return;
   updateOnboard();
   if (!apiKey && !keyless) { setFeedStatus(''); return; }
-  const sel = TOPICS.filter(t => state.prefs.topics.includes(t.id));
-  if (!sel.length) { setFeedStatus('Scegli almeno un argomento qui sopra.'); return; }
-  loading = true; feedError = false;
+  const perte = state.prefs.mode === 'perte';
+  const srcs = perte ? forYouSources() : selectedFavs();
+  if (!srcs.length) {
+    setFeedStatus(perte
+      ? "Qui compariranno articoli affini a quelli che ti sono piaciuti. Quando hai letto un articolo, rispondi a «Com'era?» sotto di esso."
+      : 'Scegli almeno un argomento qui sopra.');
+    return;
+  }
+  feedLoading = true; feedError = false;
   const gen = feedGen;
   setFeedStatus('Cerco articoli…');
+  const sc = scores();
+  const tScore = it => ((sc.topics[it.topicId] || {}).score || 0) + 0.5 * ((sc.subs[it.subfieldId] || {}).score || 0);
   const added = [];
   let err = null;
   for (let attempt = 0; attempt < 3 && added.length < 5; attempt++) {
-    const picks = pickTopics(sel, Math.min(2, sel.length));
-    const settled = await Promise.allSettled(picks.map(fetchTopic));
+    const picks = pickSources(srcs, Math.min(2, srcs.length));
+    const settled = await Promise.allSettled(picks.map(s => fetchSource(s)));
     if (gen !== feedGen) return;
     const ok = settled.filter(s => s.status === 'fulfilled').map(s => s.value);
     if (!ok.length) { err = settled[0].reason; break; }
     for (const it of interleave(ok)) {
-      if (shown.has(it.id) || isKnown(it.id)) continue;
-      shown.add(it.id);
+      if (feedShown.has(it.id) || isKnown(it.id)) continue;
+      if (((sc.topics[it.topicId] || {}).score || 0) <= -2) continue;
+      feedShown.add(it.id);
       added.push(it);
     }
   }
   store.set('wk-meta', meta);
-  loading = false;
+  feedLoading = false;
   if (gen !== feedGen) return;
+  if (Object.keys(sc.topics).length) added.sort((a, b) => tScore(b) - tScore(a));
   const list = $('#feed-list');
   for (const it of added) list.append(entryEl(it, 'feed'));
   feedCount += added.length;
@@ -662,23 +1261,57 @@ async function loadMore() {
   else setFeedStatus('', { more: true });
 }
 
-/* ---------- Article entry ---------- */
-function translateUrl(text) {
-  return 'https://translate.google.com/?sl=auto&tl=it&op=translate&text=' + encodeURIComponent(text.slice(0, 4500));
-}
+/* =========================================================
+   Article entry
+   ========================================================= */
+function translateUrl(text) { return 'https://translate.google.com/?sl=auto&tl=it&op=translate&text=' + encodeURIComponent(String(text).slice(0, 4500)); }
 function scholarUrl(title) { return 'https://scholar.google.com/scholar?q=' + encodeURIComponent('"' + title + '"'); }
 
-function entryEl(item, ctx) {
+function rateRow(item, after) {
+  const row = el('div', 'rate');
+  row.append(el('span', 'rate-q', "Com'era?"));
+  const chips = RATINGS.map(R => {
+    const b = btn(R.label, 'chip sm');
+    b.onclick = () => {
+      const cur = (rec(item.id) || {}).rating;
+      const v = cur === R.v ? null : R.v;
+      update(item, { rating: v, ratedAt: v == null ? null : Date.now(), read: true });
+      sync();
+      if (after) after(v);
+    };
+    row.append(b);
+    return [R.v, b];
+  });
+  function sync() {
+    const cur = (rec(item.id) || {}).rating;
+    for (const [v, b] of chips) b.setAttribute('aria-pressed', String(cur === v));
+  }
+  sync();
+  return row;
+}
+function ratingToast(v) {
+  if (v === -2) toast('Ricevuto: vedrai meno articoli di questo argomento.');
+  else if (v != null && v >= 1) toast('Ricevuto: il feed «Per te» ne terrà conto.');
+}
+
+function entryEl(item, ctx, opts = {}) {
+  itemCache.set(item.id, item);
   const art = el('article', 'entry');
-  const r = rec(item.id) || {};
-  if (r.read) art.classList.add('is-read');
-  if (item.topic) art.append(el('p', 'entry-topic', item.topic));
+  art.dataset.id = item.id;
+  const lab = item.label || subIt(item.subfieldName) || item.topicName || item.topic;
+  if (lab && !opts.noLabel) art.append(el('p', 'entry-topic', lab));
 
   const h = el('h2', 'entry-title');
   const a = el('a', null, item.title || 'Senza titolo');
   a.href = safeUrl(item.url) || '#'; a.target = '_blank'; a.rel = 'noopener';
   h.append(a); art.append(h);
   if (item.authors) art.append(el('p', 'entry-authors', item.authors));
+
+  if (item.why) {
+    const w = el('div', 'why');
+    w.append(el('p', 'why-label', "Perché te lo propone l'AI"), el('p', null, item.why));
+    art.append(w);
+  }
 
   if (item.abstract) {
     const ab = el('div', 'abstract');
@@ -695,31 +1328,35 @@ function entryEl(item, ctx) {
       };
       art.append(more);
     }
+  } else if (ctx !== 'curio') {
+    art.append(el('p', 'note', "Abstract non disponibile su OpenAlex: aprilo dalla rivista."));
   }
 
   const label = el('div', 'label');
   label.append(el('p', 'l-journal', item.journal || 'Rivista non indicata'));
   const bits = [];
   if (item.year) bits.push(String(item.year));
+  if (item.review) bits.push('rassegna');
   if (item.cites != null) bits.push(item.cites === 1 ? 'citato 1 volta' : 'citato ' + fmtNum(item.cites) + ' volte');
   if (bits.length) label.append(el('p', 'l-meta', bits.join(', ')));
   if (item.oa) label.append(el('p', 'l-oa', 'Leggibile gratis'));
   art.append(label);
 
   const readBtn = btn('', 'btn');
+  let rate = null;
   const syncRead = () => {
-    const on = !!(rec(item.id) || {}).read;
-    readBtn.textContent = on ? 'Letto' : 'Segna letto';
-    readBtn.setAttribute('aria-pressed', String(on));
-    art.classList.toggle('is-read', on);
+    const r = rec(item.id) || {};
+    readBtn.textContent = r.read ? 'Letto' : 'Segna letto';
+    readBtn.setAttribute('aria-pressed', String(!!r.read));
+    art.classList.toggle('is-read', !!r.read);
+    if (!r.read && rate) { rate.remove(); rate = null; }
+    if (r.read && !rate) { rate = rateRow(item, v => { syncRead(); ratingToast(v); }); art.append(rate); }
   };
-  const markRead = () => { if (!(rec(item.id) || {}).read) { setFlag(item, 'read', true); syncRead(); } };
+  const markRead = () => { if (!(rec(item.id) || {}).read) { update(item, { read: true }); syncRead(); } };
 
   const primary = el('div', 'actions');
-  const open = linkBtn('Apri articolo', item.url, 'btn solid');
-  primary.append(open);
+  primary.append(linkBtn('Apri articolo', item.url, 'btn solid'));
   if (item.pdf) primary.append(linkBtn('Versione gratuita', item.pdf));
-  else if (item.title) primary.append(linkBtn('Cerca su Scholar', scholarUrl(item.title)));
   for (const link of primary.querySelectorAll('a')) link.addEventListener('click', markRead);
   a.addEventListener('click', markRead);
   art.append(primary);
@@ -733,454 +1370,284 @@ function entryEl(item, ctx) {
   };
   saveBtn.onclick = () => {
     const on = !(rec(item.id) || {}).saved;
-    setFlag(item, 'saved', on);
+    update(item, { saved: on });
     syncSave();
     if (ctx === 'saved' && !on) {
-      art.remove(); updateSavedCount();
-      toast('Tolto dai salvati.', 'Annulla', () => { setFlag(item, 'saved', true); renderSaved(); });
-    } else if (on) toast('Salvato. Lo trovi in Salvati.');
+      art.remove(); updateRaccoltaCount();
+      toast('Tolto dai salvati.', 'Annulla', () => { update(item, { saved: true }); renderRaccolta(['raccolta']); });
+    } else if (on) toast('Salvato. Lo trovi in Raccolta.');
   };
-  readBtn.onclick = () => { setFlag(item, 'read', !(rec(item.id) || {}).read); syncRead(); };
-  sec.append(saveBtn, readBtn);
-  if (item.abstract) sec.append(linkBtn('Traduci', translateUrl(item.abstract), 'btn'));
-  if (ctx === 'feed') {
-    const hide = btn('Nascondi', 'btn');
+  readBtn.onclick = () => {
+    const was = !!(rec(item.id) || {}).read;
+    update(item, was ? { read: false, rating: null, ratedAt: null } : { read: true });
+    syncRead();
+  };
+  const filo = el('a', 'btn', 'Segui il filo');
+  filo.href = '#filo/' + item.id;
+  const moreBtn = btn('Altro', 'btn');
+  moreBtn.setAttribute('aria-expanded', 'false');
+  sec.append(saveBtn, readBtn, filo, moreBtn);
+  art.append(sec);
+
+  const extra = el('div', 'actions secondary');
+  extra.hidden = true;
+  if (item.abstract) extra.append(linkBtn("Traduci l'abstract", translateUrl(item.abstract)));
+  if (item.title) extra.append(linkBtn('Cerca su Scholar', scholarUrl(item.title)));
+  if (ctx !== 'saved') {
+    const hide = btn('Non mostrarlo più', 'btn');
     hide.onclick = () => {
-      const next = art.nextSibling, parent = art.parentNode;
-      setFlag(item, 'hidden', true);
-      art.remove();
+      const target = opts.removeEl || art;
+      const next = target.nextSibling, parent = target.parentNode;
+      update(item, { hidden: true });
+      target.remove();
       toast('Non lo vedrai più.', 'Annulla', () => {
-        setFlag(item, 'hidden', false);
-        if (parent) parent.insertBefore(art, next && next.parentNode === parent ? next : null);
+        update(item, { hidden: false });
+        if (parent) parent.insertBefore(target, next && next.parentNode === parent ? next : null);
       });
     };
-    sec.append(hide);
+    extra.append(hide);
   }
-  art.append(sec);
+  moreBtn.onclick = () => {
+    extra.hidden = !extra.hidden;
+    moreBtn.setAttribute('aria-expanded', String(!extra.hidden));
+  };
+  art.append(extra);
+
   syncSave(); syncRead();
   return art;
 }
 
-/* ---------- Saved & read views ---------- */
-function savedItems() { return Object.values(state.items).filter(r => r && r.saved && r.m).sort((a, b) => (b.t || 0) - (a.t || 0)); }
-function updateSavedCount() {
-  const n = savedItems().length;
-  $('#saved-count').textContent = n ? (n === 1 ? '1 articolo da leggere con calma.' : n + ' articoli da leggere con calma.') : '';
-}
-function renderSaved() {
-  const list = $('#saved-list');
-  list.textContent = '';
-  const items = savedItems();
-  updateSavedCount();
-  if (!items.length) { list.append(el('p', 'empty', 'Ancora niente. Nel feed, tocca «Salva» sugli articoli che vuoi tenere da parte.')); return; }
-  for (const r of items) list.append(entryEl(r.m, 'saved'));
-}
-
-function renderRead() {
-  const list = $('#read-list');
-  list.textContent = '';
-  const items = Object.values(state.items).filter(r => r && r.read && r.m).sort((a, b) => (b.readAt || b.t || 0) - (a.readAt || a.t || 0));
-  $('#read-count').textContent = items.length ? (items.length === 1 ? '1 articolo letto. Non tornerà nel feed.' : items.length + ' articoli letti. Non torneranno nel feed.') : '';
-  if (!items.length) { list.append(el('p', 'empty', 'Quando apri un articolo o lo segni come letto, compare qui e non torna più nel feed.')); return; }
-  for (const r of items) {
-    const m = r.m;
-    const row = el('div', 'row');
-    const a = el('a', 'row-title', m.title || 'Senza titolo');
-    a.href = safeUrl(m.url) || '#'; a.target = '_blank'; a.rel = 'noopener';
-    row.append(a);
-    const bits = [m.journal, m.year].filter(Boolean).join(', ');
-    row.append(el('p', 'row-meta', (bits ? bits + '. ' : '') + 'Letto il ' + fmtDate(r.readAt || r.t) + '.'));
-    const undo = btn('Rimetti tra i non letti', 'linkish');
-    undo.onclick = () => { setFlag(m, 'read', false); renderRead(); toast('Può tornare nel feed.'); };
-    row.append(undo);
-    list.append(row);
-  }
-}
-
-/* ---------- Controls ---------- */
-let prefTimer;
-function prefsChanged(delay) {
-  state.prefs.t = Date.now();
-  saveState();
-  clearTimeout(prefTimer);
-  prefTimer = setTimeout(resetFeed, delay || 0);
-}
-
-function renderControls() {
-  const chips = $('#chips');
-  chips.textContent = '';
-  for (const t of TOPICS) {
-    const b = btn(t.name, 'chip');
-    b.setAttribute('aria-pressed', String(state.prefs.topics.includes(t.id)));
-    b.onclick = () => {
-      const on = state.prefs.topics.includes(t.id);
-      state.prefs.topics = on ? state.prefs.topics.filter(x => x !== t.id) : state.prefs.topics.concat(t.id);
-      b.setAttribute('aria-pressed', String(!on));
-      updateAllChip();
-      prefsChanged(800);
-    };
-    chips.append(b);
-  }
-  const all = btn('', 'chip-all');
-  all.id = 'chip-all';
-  all.onclick = () => {
-    const everything = state.prefs.topics.length === TOPICS.length;
-    state.prefs.topics = everything ? [] : TOPICS.map(t => t.id);
-    renderControls();
-    prefsChanged(everything ? 0 : 300);
-  };
-  chips.append(all);
-  updateAllChip();
-
-  for (const b of document.querySelectorAll('#modes button')) b.setAttribute('aria-pressed', String(b.dataset.mode === state.prefs.mode));
-  $('#mode-hint').textContent = MODES[state.prefs.mode];
-  $('#t-big').checked = state.prefs.big;
-  $('#t-oa').checked = state.prefs.oa;
-}
-function updateAllChip() {
-  const b = $('#chip-all');
-  if (b) b.textContent = state.prefs.topics.length === TOPICS.length ? 'Togli tutti' : 'Scegli tutti';
-}
-
-/* ---------- Sync (GitHub gist) ---------- */
-let syncing = false, syncAgain = false, syncTimer = null;
-function scheduleSync() {
-  if (!gh.token) return;
-  clearTimeout(syncTimer);
-  syncTimer = setTimeout(syncNow, 4000);
-}
-function serialize() { return JSON.stringify({ v: 1, app: 'wunderkammer', items: state.items, prefs: state.prefs }); }
-
-function cleanRecord(id, r) {
-  if (!r || typeof r !== 'object' || typeof id !== 'string' || !/^W\d+$/.test(id)) return null;
-  const m = r.m && typeof r.m === 'object' ? r.m : {};
-  const str = v => (typeof v === 'string' ? v.slice(0, 6000) : '');
-  const out = {
-    id, t: Number(r.t) || 0, read: !!r.read, saved: !!r.saved, hidden: !!r.hidden,
-    readAt: Number(r.readAt) || null,
-    m: {
-      id, title: str(m.title), journal: str(m.journal), authors: str(m.authors), topic: str(m.topic),
-      url: safeUrl(m.url), pdf: safeUrl(m.pdf), year: Number(m.year) || null,
-      cites: typeof m.cites === 'number' ? m.cites : null, oa: !!m.oa
+/* =========================================================
+   Generic paged list (Esplora, Filo, Cerca)
+   ========================================================= */
+function makeList({ list, foot, fetchPage, ctx, empty, onFirst }) {
+  const st = { page: 1, gen: 0, loading: false, done: false, shown: new Set(), count: 0 };
+  foot.textContent = '';
+  const status = el('p', 'feed-status');
+  const more = btn('Carica altri articoli', 'btn');
+  more.hidden = true;
+  foot.append(status, more);
+  more.onclick = () => load();
+  async function load() {
+    if (st.loading || st.done) return;
+    st.loading = true;
+    const gen = st.gen;
+    setStatus(status, 'Cerco articoli…');
+    more.hidden = true;
+    try {
+      const res = await fetchPage(st.page);
+      if (gen !== st.gen) return;
+      if (st.page === 1 && onFirst) onFirst(res);
+      st.page++;
+      let n = 0;
+      for (const it of res.items) {
+        if (st.shown.has(it.id) || isHidden(it.id)) continue;
+        st.shown.add(it.id);
+        list.append(entryEl(it, ctx));
+        n++;
+      }
+      st.count += n;
+      st.done = !!res.last;
+      setStatus(status, st.count ? (st.done ? 'Non ci sono altri articoli.' : '') : (empty || 'Nessun articolo trovato.'));
+      more.textContent = 'Carica altri articoli';
+      more.hidden = st.done;
+    } catch (e) {
+      if (gen !== st.gen) return;
+      setStatus(status, errorCopy(e), 'err');
+      more.textContent = 'Riprova';
+      more.hidden = false;
+    } finally {
+      if (gen === st.gen) st.loading = false;
     }
-  };
-  if (out.saved && m.abstract) out.m.abstract = str(m.abstract);
-  return out;
-}
-
-function mergeIn(data) {
-  const res = { changed: 0, prefs: false };
-  if (!data || typeof data !== 'object' || !data.items || typeof data.items !== 'object') return res;
-  for (const [id, raw] of Object.entries(data.items)) {
-    const r = cleanRecord(id, raw);
-    if (!r) continue;
-    const l = state.items[id];
-    if (!l || r.t > (l.t || 0)) { state.items[id] = r; res.changed++; }
   }
-  const p = cleanPrefs(data.prefs);
-  if (p && p.t > (state.prefs.t || 0)) { state.prefs = p; res.prefs = true; res.changed++; }
-  return res;
-}
-
-function afterMerge(res) {
-  if (!res.changed) return;
-  if (res.prefs) renderControls();
-  const view = currentView();
-  if (view === 'salvati') renderSaved();
-  if (view === 'letti') renderRead();
-  if (res.prefs && view === 'feed' && started) resetFeed();
-}
-let started = false;
-
-async function ghFetch(path, opts = {}) {
-  const headers = { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + gh.token };
-  if (opts.body) headers['Content-Type'] = 'application/json';
-  let r;
-  try { r = await fetch('https://api.github.com' + path, Object.assign({}, opts, { headers, cache: 'no-store' })); }
-  catch (e) { throw { kind: 'net' }; }
-  if (!r.ok) throw { kind: 'http', status: r.status };
-  return r.status === 204 ? null : r.json();
-}
-
-async function findOrCreateGist() {
-  for (let page = 1; page <= 5; page++) {
-    const list = await ghFetch('/gists?per_page=100&page=' + page);
-    const g = (list || []).find(x => x.description === GIST_DESC && x.files && x.files[GIST_FILE]);
-    if (g) return g.id;
-    if (!list || list.length < 100) break;
+  function reset() {
+    st.gen++; st.page = 1; st.loading = false; st.done = false; st.shown = new Set(); st.count = 0;
+    list.textContent = ''; setStatus(status, ''); more.hidden = true;
   }
-  const created = await ghFetch('/gists', {
-    method: 'POST',
-    body: JSON.stringify({ description: GIST_DESC, public: false, files: { [GIST_FILE]: { content: serialize() } } })
-  });
-  return created.id;
+  return { load, reset };
 }
 
-function ghErrorCopy(e) {
-  if (e && e.kind === 'http' && e.status === 401) return 'GitHub non accetta il token: forse è scaduto o incompleto. Creane uno nuovo.';
-  if (e && e.kind === 'http' && (e.status === 403 || e.status === 404)) return 'Il token non ha il permesso «gist». Creane uno nuovo con quel permesso.';
-  if (e && e.kind === 'net') return 'GitHub non è raggiungibile. Riprovo alla prossima modifica.';
-  return 'Sincronizzazione non riuscita. Riprova con «Sincronizza ora».';
-}
+/* =========================================================
+   Esplora: domains > fields > subfields > topics > articles
+   ========================================================= */
+let exGen = 0, exRendered = '', exMode = 'sorpresa', exSeed = 1;
+const topicMem = new Map();
 
-function setSyncStatus(msg, cls) {
-  const s = $('#s-gh-status');
-  s.textContent = msg || '';
-  s.className = 'status' + (cls ? ' ' + cls : '');
+async function getFieldSubs(fid) {
+  const c = tax.fields[fid];
+  if (c && Date.now() - c.t < 30 * 864e5 && c.subs && c.subs.length) return c.subs;
+  const data = await oaGet('/fields/' + fid);
+  const subs = (data.subfields || []).map(s => ({ id: short(s.id), name: s.display_name || '' })).filter(s => /^\d+$/.test(s.id) && s.name);
+  tax.fields[fid] = { t: Date.now(), subs };
+  for (const s of subs) tax.subNames[s.id] = s.name;
+  store.set('wk-tax', tax);
+  return subs;
 }
-
-async function syncNow() {
-  if (!gh.token) return false;
-  if (syncing) { syncAgain = true; return false; }
-  syncing = true;
-  setSyncStatus('Sincronizzazione in corso…');
+async function getSubName(sid) {
+  if (tax.subNames[sid]) return tax.subNames[sid];
+  const data = await oaGet('/subfields/' + sid);
+  tax.subNames[sid] = data.display_name || sid;
+  store.set('wk-tax', tax);
+  return tax.subNames[sid];
+}
+async function getTopics(sid) {
+  if (topicMem.has(sid)) return topicMem.get(sid);
+  let list;
   try {
-    if (!gh.gist) { gh.gist = await findOrCreateGist(); store.set('wk-gh', gh); }
-    let g;
-    try { g = await ghFetch('/gists/' + gh.gist); }
-    catch (e) {
-      if (e && e.kind === 'http' && e.status === 404) { gh.gist = await findOrCreateGist(); store.set('wk-gh', gh); g = await ghFetch('/gists/' + gh.gist); }
-      else throw e;
-    }
-    const f = g && g.files && g.files[GIST_FILE];
-    let remoteText = f ? (f.content || '') : '';
-    if (f && f.truncated && safeUrl(f.raw_url)) remoteText = await (await fetch(f.raw_url, { cache: 'no-store' })).text();
-    let remote = null;
-    try { remote = JSON.parse(remoteText); } catch (e) { remote = null; }
-    const res = mergeIn(remote);
-    if (res.changed) { persist(); afterMerge(res); }
-    const local = serialize();
-    if (local !== remoteText) {
-      await ghFetch('/gists/' + gh.gist, { method: 'PATCH', body: JSON.stringify({ files: { [GIST_FILE]: { content: local } } }) });
-    }
-    gh.last = Date.now();
-    store.set('wk-gh', gh);
-    setSyncStatus('Sincronizzato alle ' + fmtTime(gh.last) + '.', 'ok');
-    return true;
+    const data = await oaGet('/topics', { filter: 'subfield.id:' + sid, per_page: 100, sort: 'works_count:desc' });
+    list = (data.results || []).map(t => ({ id: short(t.id), name: t.display_name || '', desc: t.description || '', count: t.works_count || 0 }));
   } catch (e) {
-    setSyncStatus(ghErrorCopy(e), 'err');
-    return false;
-  } finally {
-    syncing = false;
-    if (syncAgain) { syncAgain = false; scheduleSync(); }
+    if (!(e && e.kind === 'http' && e.status === 400)) throw e;
+    const s = await oaGet('/subfields/' + sid);
+    list = (s.topics || []).map(t => ({ id: short(t.id), name: t.display_name || '', desc: '', count: 0 }));
   }
+  list = list.filter(t => /^T\d+$/.test(t.id) && t.name);
+  topicMem.set(sid, list);
+  return list;
 }
-
-/* ---------- Manual transfer code ---------- */
-function b64encode(s) {
-  const bytes = new TextEncoder().encode(s);
-  let bin = '';
-  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-  return btoa(bin);
-}
-function b64decode(b) {
-  const bin = atob(b);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return new TextDecoder().decode(bytes);
-}
-function setStatus(sel, msg, cls) { const s = $(sel); s.textContent = msg; s.className = 'status' + (cls ? ' ' + cls : ''); }
-
-async function shareCode() {
-  const code = 'WK1.' + b64encode(serialize());
-  const out = $('#code-out');
-  out.value = code; out.hidden = false;
-  if (navigator.share) {
-    try { await navigator.share({ title: 'Wunderkammer', text: code }); return; }
-    catch (e) { if (e && e.name === 'AbortError') return; }
-  }
-  try { await navigator.clipboard.writeText(code); setStatus('#code-status', "Codice copiato. Incollalo sull'altro dispositivo.", 'ok'); }
-  catch (e) { out.focus(); out.select(); setStatus('#code-status', 'Seleziona il codice qui sopra e copialo.'); }
-}
-
-function mergeCode() {
-  const raw = $('#code-in').value.replace(/\s+/g, '');
-  if (!raw) { setStatus('#code-status', "Incolla prima il codice dell'altro dispositivo.", 'err'); return; }
-  try {
-    const json = raw.startsWith('WK1.') ? b64decode(raw.slice(4)) : raw;
-    const res = mergeIn(JSON.parse(json));
-    saveState();
-    afterMerge(res);
-    $('#code-in').value = '';
-    setStatus('#code-status', res.changed ? 'Fatto: ' + res.changed + (res.changed === 1 ? ' elemento aggiornato.' : ' elementi aggiornati.') : 'Fatto: era già tutto uguale.', 'ok');
-  } catch (e) {
-    setStatus('#code-status', 'Il codice non è valido. Copialo di nuovo per intero.', 'err');
-  }
-}
-
-/* ---------- Settings ---------- */
-function renderSettings() {
-  $('#s-key').value = apiKey;
-  setStatus('#s-key-status', apiKey ? 'Chiave salvata su questo dispositivo.' : (keyless ? 'Stai usando OpenAlex senza chiave: poche richieste al giorno.' : 'Nessuna chiave salvata.'), apiKey ? 'ok' : '');
-  $('#s-gh').value = gh.token ? gh.token : '';
-  $('#s-gh-actions').hidden = !gh.token;
-  $('#s-gh-save').textContent = gh.token ? 'Aggiorna token' : 'Collega';
-  if (!syncing) {
-    if (gh.token && gh.last) setSyncStatus('Ultima sincronizzazione alle ' + fmtTime(gh.last) + ' del ' + fmtDate(gh.last) + '.', 'ok');
-    else if (!gh.token) setSyncStatus('');
-  }
-  $('#s-theme').value = store.get('wk-theme', 'auto');
-  $('#journal-list').textContent = 'Con «Grandi riviste» attivo, il feed pesca solo da: ' + JOURNALS.map(j => j[0]).join(', ') + '.';
-}
-
-function saveKey(value) {
-  apiKey = (value || '').trim();
-  store.set('wk-key', apiKey);
-  if (apiKey) { keyless = false; store.set('wk-keyless', false); }
-}
-
-/* ---------- Views ---------- */
-const VIEWS = ['feed', 'salvati', 'letti', 'impostazioni'];
-function currentView() { const v = (location.hash || '#feed').slice(1); return VIEWS.includes(v) ? v : 'feed'; }
-function route() {
-  const view = currentView();
-  for (const v of VIEWS) $('#view-' + v).hidden = v !== view;
-  for (const a of document.querySelectorAll('.tabs a')) {
-    if (a.dataset.view === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
-  }
-  if (view === 'salvati') renderSaved();
-  if (view === 'letti') renderRead();
-  if (view === 'impostazioni') renderSettings();
-  if (view === 'feed') requestAnimationFrame(() => drawFern(false));
-  window.scrollTo(0, 0);
-}
-
-/* ---------- Masthead fern (Barnsley IFS, drawn like a cyanotype) ---------- */
-let fernW = 0;
-function drawFern(animate) {
-  const c = $('#fern');
-  if (!c) return;
-  const rect = c.getBoundingClientRect();
-  if (!rect.width || !rect.height) return;
-  if (!animate && Math.round(rect.width) === fernW) return;
-  fernW = Math.round(rect.width);
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const W = Math.round(rect.width * dpr), H = Math.round(rect.height * dpr);
-  c.width = W; c.height = H;
-  const ctx = c.getContext('2d');
-  ctx.clearRect(0, 0, W, H);
-
-  ctx.fillStyle = 'rgba(236,245,252,0.05)';
-  for (let i = 0; i < W * H / 900; i++) ctx.fillRect(Math.random() * W, Math.random() * H, dpr, dpr);
-
-  const wide = W / H > 2.2;
-  const s = H * (wide ? 1.3 : 1.12) / 10;
-  const bx = W * (wide ? 0.84 : 1.04), by = H * 1.04;
-  const ang = wide ? -0.62 : -0.4, ca = Math.cos(ang), sa = Math.sin(ang);
-  const total = Math.round(Math.min(95000, Math.max(30000, W * H / 6)));
-  const dot = Math.max(1, 1.15 * dpr);
-  ctx.fillStyle = 'rgba(236,245,252,0.30)';
-  let x = 0, y = 0;
-  const step = n => {
-    for (let i = 0; i < n; i++) {
-      const r = Math.random();
-      let nx, ny;
-      if (r < 0.01) { nx = 0; ny = 0.16 * y; }
-      else if (r < 0.86) { nx = 0.85 * x + 0.04 * y; ny = -0.04 * x + 0.85 * y + 1.6; }
-      else if (r < 0.93) { nx = 0.2 * x - 0.26 * y; ny = 0.23 * x + 0.22 * y + 1.6; }
-      else { nx = -0.15 * x + 0.28 * y; ny = 0.26 * x + 0.24 * y + 0.44; }
-      x = nx; y = ny;
-      const vx = x * s, vy = -y * s;
-      ctx.fillRect(bx + vx * ca - vy * sa, by + vx * sa + vy * ca, dot, dot);
-    }
+async function getTopic(tid) {
+  const t = await oaGet('/topics/' + tid);
+  return {
+    id: short(t.id), name: t.display_name || tid, desc: t.description || '',
+    keywords: (t.keywords || []).map(k => typeof k === 'string' ? k : (k && k.display_name) || '').filter(Boolean),
+    subId: t.subfield ? short(t.subfield.id) : '', subName: t.subfield ? t.subfield.display_name : ''
   };
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!animate || reduce) { step(total); return; }
-  const frames = 55, per = Math.ceil(total / frames);
-  let f = 0;
-  const tick = () => { step(per); if (++f < frames) requestAnimationFrame(tick); };
-  requestAnimationFrame(tick);
 }
 
-/* ---------- Wiring ---------- */
-function applyTheme(v) {
-  if (v === 'light' || v === 'dark') document.documentElement.dataset.theme = v;
-  else delete document.documentElement.dataset.theme;
-}
-
-function wire() {
-  for (const b of document.querySelectorAll('#modes button')) {
-    b.onclick = () => {
-      if (state.prefs.mode === b.dataset.mode) return;
-      state.prefs.mode = b.dataset.mode;
-      renderControls();
-      prefsChanged(0);
-    };
-  }
-  $('#t-big').onchange = e => { state.prefs.big = e.target.checked; prefsChanged(0); };
-  $('#t-oa').onchange = e => { state.prefs.oa = e.target.checked; prefsChanged(0); };
-  $('#load-more').onclick = () => { if (feedError || !feedCount) resetFeed(); else loadMore(); };
-
-  $('#ob-save').onclick = () => {
-    const v = $('#ob-key').value.trim();
-    if (!v) { $('#ob-key').focus(); return; }
-    saveKey(v); resetFeed();
-  };
-  $('#ob-skip').onclick = () => { keyless = true; store.set('wk-keyless', true); resetFeed(); };
-
-  $('#s-key-save').onclick = () => {
-    const v = $('#s-key').value.trim();
-    if (!v) { setStatus('#s-key-status', 'Incolla prima la chiave.', 'err'); return; }
-    saveKey(v); renderSettings(); resetFeed();
-  };
-  $('#s-key-del').onclick = () => { saveKey(''); renderSettings(); resetFeed(); };
-
-  $('#s-gh-save').onclick = async () => {
-    const v = $('#s-gh').value.trim();
-    if (!v) { setSyncStatus('Incolla prima il token.', 'err'); return; }
-    gh = { token: v, gist: '', last: 0 };
-    store.set('wk-gh', gh);
-    $('#s-gh-actions').hidden = false;
-    $('#s-gh-save').textContent = 'Aggiorna token';
-    const ok = await syncNow();
-    if (ok) setSyncStatus("Collegato. Inserisci lo stesso token sull'altro dispositivo.", 'ok');
-  };
-  $('#s-gh-sync').onclick = () => syncNow();
-  $('#s-gh-del').onclick = () => {
-    gh = { token: '', gist: '', last: 0 };
-    store.del('wk-gh');
-    renderSettings();
-    setSyncStatus('Scollegato. I dati su questo dispositivo restano.');
-  };
-
-  $('#code-share').onclick = shareCode;
-  $('#code-merge').onclick = mergeCode;
-  $('#s-theme').onchange = e => { store.set('wk-theme', e.target.value); applyTheme(e.target.value); };
-  $('#s-wipe').onclick = () => {
-    if (!confirm('Cancellare letti, salvati, argomenti, chiave e collegamento a GitHub da questo dispositivo?')) return;
-    for (const k of ['wk-state', 'wk-key', 'wk-keyless', 'wk-gh', 'wk-meta', 'wk-theme']) store.del(k);
-    location.hash = '#feed';
-    location.reload();
-  };
-
-  window.addEventListener('hashchange', route);
-  let rt;
-  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => drawFern(false), 200); });
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && gh.token && Date.now() - (gh.last || 0) > 60000) syncNow();
+const domainOf = fid => DOMAINS.find(d => d.fields.includes(Number(fid)));
+function crumbs(trail) {
+  const nav = $('#crumbs');
+  nav.textContent = '';
+  if (!trail.length) return;
+  const items = [['Tutto', '#esplora'], ...trail];
+  items.forEach(([name, href], i) => {
+    if (i) nav.append(el('span', 'sep', '›'));
+    if (href && i < items.length - 1) { const a = el('a', null, name); a.href = href; nav.append(a); }
+    else { const s = el('span', null, name); s.setAttribute('aria-current', 'location'); nav.append(s); }
   });
-
-  const more = $('#load-more');
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(entries => {
-      if (entries.some(e => e.isIntersecting) && !loading && !feedError && feedCount > 0 && currentView() === 'feed' && !more.hidden && more.textContent !== 'Riprova') loadMore();
-    }, { rootMargin: '300px' }).observe(more);
-  }
 }
-
-async function start() {
-  applyTheme(store.get('wk-theme', 'auto'));
+function optRow(title, desc, href, metaText) {
+  const a = el('a', 'opt');
+  a.href = href;
+  a.append(el('span', 'opt-title', title));
+  if (desc) a.append(el('span', 'opt-desc', desc));
+  if (metaText) a.append(el('span', 'opt-meta', metaText));
+  return a;
+}
+function isFav(id) { return state.favs.some(f => f.id === id); }
+function toggleFav(fav, b) {
+  if (isFav(fav.id)) {
+    state.favs = state.favs.filter(f => f.id !== fav.id);
+    state.prefs.topics = state.prefs.topics.filter(x => x !== fav.id);
+    toast('Tolto dai preferiti del feed.');
+  } else {
+    state.favs.push(fav);
+    state.prefs.topics.push(fav.id);
+    toast('Aggiunto ai preferiti: lo trovi in cima al feed.');
+  }
+  state.favsT = Date.now();
   renderControls();
-  wire();
-  route();
-  drawFern(true);
-  updateOnboard();
-  if (gh.token) await Promise.race([syncNow(), sleep(5000)]);
-  started = true;
-  resetFeed();
+  prefsChanged(800);
+  if (b) syncPin(b, fav);
 }
-start();
-})();
-</script>
-</body>
-</html>
+function syncPin(b, fav) {
+  const on = isFav(fav.id);
+  b.textContent = on ? 'Nei preferiti' : 'Aggiungi ai preferiti';
+  b.setAttribute('aria-pressed', String(on));
+}
+function nodeHead({ title, desc, sub, keywords, fav, href }) {
+  const box = el('div', 'node');
+  box.append(el('h2', null, title));
+  if (sub) box.append(el('p', null, sub));
+  if (desc) { const p = el('p', null, desc); box.append(p); }
+  if (keywords && keywords.length) box.append(el('p', 'note', 'Parole chiave: ' + keywords.slice(0, 8).join(', ') + '.'));
+  const act = el('div', 'actions');
+  if (href) { const a = el('a', 'btn solid', 'Mostra articoli'); a.href = href; act.append(a); }
+  if (fav) { const b = btn('', 'btn'); syncPin(b, fav); b.onclick = () => toggleFav(fav, b); act.append(b); }
+  box.append(act);
+  return box;
+}
+function exArticles(src) {
+  const head = $('#ex-head');
+  const seg = el('div', 'seg');
+  seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Che articoli mostrare');
+  const box = el('div', 'node');
+  box.style.paddingTop = '0';
+  box.append(seg);
+  const p = state.prefs, active = [];
+  if (p.big) active.push('Grandi riviste');
+  if (p.oa) active.push('Leggibili gratis');
+  if (p.intro) active.push('Per iniziare');
+  if (active.length) box.append(el('p', 'note', 'Filtri del feed attivi: ' + active.join(', ') + '.'));
+  head.append(box);
+  const ctl = makeList({
+    list: $('#ex-list'), foot: $('#ex-foot'), ctx: 'explore',
+    empty: 'Nessun articolo con questi filtri. Prova a togliere i filtri del feed.',
+    fetchPage: async page => {
+      const data = await worksQ(() => {
+        const mf = modeFilters(exMode);
+        return {
+          filters: [...commonFilters(), ...sourceFilter(src).f, ...mf.f],
+          sort: exMode === 'sorpresa' ? '' : mf.sort, page, per: 10,
+          sample: exMode === 'sorpresa' ? 300 : 0, seed: exSeed
+        };
+      });
+      const items = toItems(data);
+      return { items, last: items.length < 10 };
+    }
+  });
+  for (const [m, label] of [['sorpresa', 'A sorpresa'], ['recenti', 'Recenti'], ['classici', 'Classici']]) {
+    const b = btn(label, '');
+    b.setAttribute('aria-pressed', String(exMode === m));
+    b.onclick = () => {
+      exMode = m; exSeed = 1 + Math.floor(Math.random() * 1e6);
+      for (const x of seg.children) x.setAttribute('aria-pressed', String(x === b));
+      ctl.reset(); ctl.load();
+    };
+    seg.append(b);
+  }
+  ctl.load();
+}
+
+async function renderEsplora(parts) {
+  const gen = ++exGen;
+  const head = $('#ex-head'), opts = $('#ex-opts');
+  head.textContent = ''; opts.textContent = ''; $('#ex-list').textContent = ''; $('#ex-foot').textContent = '';
+  exSeed = 1 + Math.floor(Math.random() * 1e6);
+  const [, kind, id, sub] = parts;
+  const loading = () => { const p = el('p', 'feed-status', 'Carico…'); opts.append(p); return p; };
+  const fail = e => { if (gen !== exGen) return; opts.textContent = ''; const p = el('p', 'feed-status err', errorCopy(e)); opts.append(p); };
+
+  if (!kind) {
+    crumbs([]);
+    const box = el('div', 'node');
+    box.append(el('p', null, "Tutto il catalogo di OpenAlex, diviso in quattro grandi aree. Scendi di livello fino all'argomento che ti incuriosisce: a ogni passo puoi vedere gli articoli o aggiungere l'ambito ai preferiti del feed."));
+    head.append(box);
+    for (const d of DOMAINS) opts.append(optRow(d.name, d.desc, '#esplora/d/' + d.id));
+    return;
+  }
+  if (kind === 'd') {
+    const d = DOMAINS.find(x => x.id === id);
+    if (!d) { location.hash = '#esplora'; return; }
+    crumbs([[d.name]]);
+    head.append(nodeHead({ title: d.name, desc: d.desc }));
+    for (const f of d.fields) opts.append(optRow(FIELDS[f][0], FIELDS[f][1], '#esplora/f/' + f));
+    return;
+  }
+  if (kind === 'f') {
+    const fid = Number(id), F = FIELDS[fid], d = domainOf(fid);
+    if (!F || !d) { location.hash = '#esplora'; return; }
+    const fav = { id: 'fd-' + fid, kind: 'field', oa: String(fid), name: F[0] };
+    if (sub === 'a') {
+      crumbs([[d.name, '#esplora/d/' + d.id], [F[0], '#esplora/f/' + fid], ['Articoli']]);
+      head.append(nodeHead({ title: F[0], desc: F[1], fav }));
+      exArticles(fav);
+      return;
+    }
+    crumbs([[d.name, '#esplora/d/' + d.id], [F[0]]]);
+    head.append(nodeHead({ title: F[0], desc: F[1], fav, href: '#esplora/f/' + fid + '/a' }));
+    const l = loading();
+    try {
+      const subs = await getFieldSubs(fid);
+      if (gen !== exGen) return;
+      l.r
