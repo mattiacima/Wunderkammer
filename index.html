@@ -10,6 +10,54 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..600&display=swap" rel="stylesheet">
+<script>
+/* Startup guard: if the main script fails (incomplete file, blocked or broken code), say so on screen. */
+(function () {
+  var errors = [];
+  function show(msg, detail) {
+    if (detail) errors.push(String(detail));
+    if (!document.body) { document.addEventListener('DOMContentLoaded', function () { show(msg); }); return; }
+    var box = document.getElementById('boot-error');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'boot-error';
+      box.setAttribute('role', 'alert');
+      document.body.appendChild(box);
+    }
+    box.textContent = '';
+    var p = document.createElement('p');
+    p.textContent = msg;
+    box.appendChild(p);
+    if (errors.length) {
+      var d = document.createElement('p');
+      d.className = 'boot-detail';
+      d.textContent = 'Dettaglio tecnico: ' + errors.slice(-3).join(' | ');
+      box.appendChild(d);
+    }
+    var c = document.createElement('button');
+    c.type = 'button';
+    c.textContent = 'Chiudi';
+    c.onclick = function () { box.parentNode.removeChild(box); };
+    box.appendChild(c);
+  }
+  window.__wkShowError = show;
+  window.addEventListener('error', function (e) {
+    if (!e || !e.message) return;
+    var where = e.lineno ? ' (riga ' + e.lineno + ')' : '';
+    show(window.__wkStarted ? "Qualcosa è andato storto nell'app." : "L'app non è partita a causa di un errore.", e.message + where);
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e && e.reason;
+    if (!r || !(r instanceof Error)) return;
+    show(window.__wkStarted ? "Qualcosa è andato storto nell'app." : "L'app non è partita a causa di un errore.", r.message);
+  });
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      if (!window.__wkStarted && !errors.length) show("L'app non è partita. Il file index.html caricato su GitHub potrebbe essere incompleto: dovrebbe pesare circa 145 KB e finire con <" + "/html>. Caricalo di nuovo intero.");
+    }, 3000);
+  });
+})();
+</script>
 <style>
 :root {
   --paper: #F1F4F2;
@@ -50,6 +98,10 @@ a { color: var(--blue); text-underline-offset: 3px; }
 :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 [hidden] { display: none !important; }
 main { padding-bottom: calc(var(--tabs-h) + 2rem); }
+#boot-error { position: fixed; z-index: 60; left: 0.75rem; right: 0.75rem; top: calc(env(safe-area-inset-top, 0px) + 0.75rem); background: #A4262C; color: #fff; padding: 0.9rem 1rem; border-radius: 4px; font-family: system-ui, sans-serif; font-size: 0.95rem; line-height: 1.4; }
+#boot-error p { margin: 0 0 0.4rem; }
+#boot-error .boot-detail { font-size: 0.8rem; opacity: 0.9; overflow-wrap: anywhere; }
+#boot-error button { font: inherit; font-weight: 700; color: #fff; background: none; border: 1px solid #fff; border-radius: 3px; padding: 0.35rem 0.8rem; margin-top: 0.2rem; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .wrap { max-width: 720px; margin: 0 auto; padding: 0 1.25rem; }
 
@@ -461,6 +513,7 @@ textarea.code { width: 100%; min-height: 6.5rem; margin-top: 0.6rem; font: inher
       <div class="setting">
         <h2>Dati su questo dispositivo</h2>
         <p>Cancella letti, salvati, valutazioni, preferiti, chiavi e collegamento a GitHub da questo dispositivo. Il file su GitHub resta.</p>
+        <p class="note">Wunderkammer, versione 2.1.</p>
         <div class="actions"><button class="btn" type="button" id="s-wipe">Cancella tutto</button></div>
       </div>
     </div>
@@ -1589,65 +1642,4 @@ function exArticles(src) {
         return {
           filters: [...commonFilters(), ...sourceFilter(src).f, ...mf.f],
           sort: exMode === 'sorpresa' ? '' : mf.sort, page, per: 10,
-          sample: exMode === 'sorpresa' ? 300 : 0, seed: exSeed
-        };
-      });
-      const items = toItems(data);
-      return { items, last: items.length < 10 };
-    }
-  });
-  for (const [m, label] of [['sorpresa', 'A sorpresa'], ['recenti', 'Recenti'], ['classici', 'Classici']]) {
-    const b = btn(label, '');
-    b.setAttribute('aria-pressed', String(exMode === m));
-    b.onclick = () => {
-      exMode = m; exSeed = 1 + Math.floor(Math.random() * 1e6);
-      for (const x of seg.children) x.setAttribute('aria-pressed', String(x === b));
-      ctl.reset(); ctl.load();
-    };
-    seg.append(b);
-  }
-  ctl.load();
-}
-
-async function renderEsplora(parts) {
-  const gen = ++exGen;
-  const head = $('#ex-head'), opts = $('#ex-opts');
-  head.textContent = ''; opts.textContent = ''; $('#ex-list').textContent = ''; $('#ex-foot').textContent = '';
-  exSeed = 1 + Math.floor(Math.random() * 1e6);
-  const [, kind, id, sub] = parts;
-  const loading = () => { const p = el('p', 'feed-status', 'Carico…'); opts.append(p); return p; };
-  const fail = e => { if (gen !== exGen) return; opts.textContent = ''; const p = el('p', 'feed-status err', errorCopy(e)); opts.append(p); };
-
-  if (!kind) {
-    crumbs([]);
-    const box = el('div', 'node');
-    box.append(el('p', null, "Tutto il catalogo di OpenAlex, diviso in quattro grandi aree. Scendi di livello fino all'argomento che ti incuriosisce: a ogni passo puoi vedere gli articoli o aggiungere l'ambito ai preferiti del feed."));
-    head.append(box);
-    for (const d of DOMAINS) opts.append(optRow(d.name, d.desc, '#esplora/d/' + d.id));
-    return;
-  }
-  if (kind === 'd') {
-    const d = DOMAINS.find(x => x.id === id);
-    if (!d) { location.hash = '#esplora'; return; }
-    crumbs([[d.name]]);
-    head.append(nodeHead({ title: d.name, desc: d.desc }));
-    for (const f of d.fields) opts.append(optRow(FIELDS[f][0], FIELDS[f][1], '#esplora/f/' + f));
-    return;
-  }
-  if (kind === 'f') {
-    const fid = Number(id), F = FIELDS[fid], d = domainOf(fid);
-    if (!F || !d) { location.hash = '#esplora'; return; }
-    const fav = { id: 'fd-' + fid, kind: 'field', oa: String(fid), name: F[0] };
-    if (sub === 'a') {
-      crumbs([[d.name, '#esplora/d/' + d.id], [F[0], '#esplora/f/' + fid], ['Articoli']]);
-      head.append(nodeHead({ title: F[0], desc: F[1], fav }));
-      exArticles(fav);
-      return;
-    }
-    crumbs([[d.name, '#esplora/d/' + d.id], [F[0]]]);
-    head.append(nodeHead({ title: F[0], desc: F[1], fav, href: '#esplora/f/' + fid + '/a' }));
-    const l = loading();
-    try {
-      const subs = await getFieldSubs(fid);
-      if (gen !== exGen) return;
-      l.r
+  
