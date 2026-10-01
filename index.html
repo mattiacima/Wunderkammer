@@ -1642,4 +1642,1010 @@ function exArticles(src) {
         return {
           filters: [...commonFilters(), ...sourceFilter(src).f, ...mf.f],
           sort: exMode === 'sorpresa' ? '' : mf.sort, page, per: 10,
-  
+          sample: exMode === 'sorpresa' ? 300 : 0, seed: exSeed
+        };
+      });
+      const items = toItems(data);
+      return { items, last: items.length < 10 };
+    }
+  });
+  for (const [m, label] of [['sorpresa', 'A sorpresa'], ['recenti', 'Recenti'], ['classici', 'Classici']]) {
+    const b = btn(label, '');
+    b.setAttribute('aria-pressed', String(exMode === m));
+    b.onclick = () => {
+      exMode = m; exSeed = 1 + Math.floor(Math.random() * 1e6);
+      for (const x of seg.children) x.setAttribute('aria-pressed', String(x === b));
+      ctl.reset(); ctl.load();
+    };
+    seg.append(b);
+  }
+  ctl.load();
+}
+
+async function renderEsplora(parts) {
+  const gen = ++exGen;
+  const head = $('#ex-head'), opts = $('#ex-opts');
+  head.textContent = ''; opts.textContent = ''; $('#ex-list').textContent = ''; $('#ex-foot').textContent = '';
+  exSeed = 1 + Math.floor(Math.random() * 1e6);
+  const [, kind, id, sub] = parts;
+  const loading = () => { const p = el('p', 'feed-status', 'Carico…'); opts.append(p); return p; };
+  const fail = e => { if (gen !== exGen) return; opts.textContent = ''; const p = el('p', 'feed-status err', errorCopy(e)); opts.append(p); };
+
+  if (!kind) {
+    crumbs([]);
+    const box = el('div', 'node');
+    box.append(el('p', null, "Tutto il catalogo di OpenAlex, diviso in quattro grandi aree. Scendi di livello fino all'argomento che ti incuriosisce: a ogni passo puoi vedere gli articoli o aggiungere l'ambito ai preferiti del feed."));
+    head.append(box);
+    for (const d of DOMAINS) opts.append(optRow(d.name, d.desc, '#esplora/d/' + d.id));
+    return;
+  }
+  if (kind === 'd') {
+    const d = DOMAINS.find(x => x.id === id);
+    if (!d) { location.hash = '#esplora'; return; }
+    crumbs([[d.name]]);
+    head.append(nodeHead({ title: d.name, desc: d.desc }));
+    for (const f of d.fields) opts.append(optRow(FIELDS[f][0], FIELDS[f][1], '#esplora/f/' + f));
+    return;
+  }
+  if (kind === 'f') {
+    const fid = Number(id), F = FIELDS[fid], d = domainOf(fid);
+    if (!F || !d) { location.hash = '#esplora'; return; }
+    const fav = { id: 'fd-' + fid, kind: 'field', oa: String(fid), name: F[0] };
+    if (sub === 'a') {
+      crumbs([[d.name, '#esplora/d/' + d.id], [F[0], '#esplora/f/' + fid], ['Articoli']]);
+      head.append(nodeHead({ title: F[0], desc: F[1], fav }));
+      exArticles(fav);
+      return;
+    }
+    crumbs([[d.name, '#esplora/d/' + d.id], [F[0]]]);
+    head.append(nodeHead({ title: F[0], desc: F[1], fav, href: '#esplora/f/' + fid + '/a' }));
+    const l = loading();
+    try {
+      const subs = await getFieldSubs(fid);
+      if (gen !== exGen) return;
+      l.remove();
+      subs.map(s => ({ s, it: subIt(s.name) })).sort((a, b) => a.it.localeCompare(b.it, 'it'))
+        .forEach(({ s, it }) => opts.append(optRow(it, it !== s.name ? s.name : '', '#esplora/s/' + s.id)));
+    } catch (e) { fail(e); }
+    return;
+  }
+  if (kind === 's') {
+    const sid = String(id || '');
+    if (!/^\d+$/.test(sid)) { location.hash = '#esplora'; return; }
+    const fid = Number(sid.slice(0, 2)), F = FIELDS[fid], d = domainOf(fid);
+    let en = tax.subNames[sid] || '';
+    if (!en) { try { en = await getSubName(sid); } catch (e) { en = sid; } if (gen !== exGen) return; }
+    const it = subIt(en);
+    const fav = { id: 'sf-' + sid, kind: 'subfield', oa: sid, name: it };
+    const trail = [];
+    if (d && F) trail.push([d.name, '#esplora/d/' + d.id], [F[0], '#esplora/f/' + fid]);
+    if (sub === 'a') {
+      crumbs([...trail, [it, '#esplora/s/' + sid], ['Articoli']]);
+      head.append(nodeHead({ title: it, sub: it !== en ? en : '', fav }));
+      exArticles(fav);
+      return;
+    }
+    crumbs([...trail, [it]]);
+    head.append(nodeHead({ title: it, sub: it !== en ? 'In OpenAlex: ' + en + '.' : '', fav, href: '#esplora/s/' + sid + '/a' }));
+    const l = loading();
+    try {
+      const topics = await getTopics(sid);
+      if (gen !== exGen) return;
+      l.remove();
+      if (!topics.length) opts.append(el('p', 'feed-status', 'Nessun argomento trovato qui.'));
+      for (const t of topics) opts.append(optRow(t.name, t.desc, '#esplora/t/' + t.id, t.count ? fmtCount(t.count) : ''));
+      if (topics.length) head.lastChild.append(el('p', 'note', 'I nomi degli argomenti sono quelli originali di OpenAlex, in inglese.'));
+    } catch (e) { fail(e); }
+    return;
+  }
+  if (kind === 't') {
+    const tid = String(id || '');
+    if (!/^T\d+$/.test(tid)) { location.hash = '#esplora'; return; }
+    crumbs([['Argomento']]);
+    const l = loading();
+    try {
+      const t = await getTopic(tid);
+      if (gen !== exGen) return;
+      l.remove();
+      const fid = Number(String(t.subId).slice(0, 2)), F = FIELDS[fid], d = domainOf(fid);
+      const trail = [];
+      if (d && F) trail.push([d.name, '#esplora/d/' + d.id], [F[0], '#esplora/f/' + fid]);
+      if (t.subId) trail.push([subIt(t.subName), '#esplora/s/' + t.subId]);
+      crumbs([...trail, [t.name]]);
+      const fav = { id: 'tp-' + t.id, kind: 'topic', oa: t.id, name: t.name };
+      head.append(nodeHead({ title: t.name, desc: t.desc, keywords: t.keywords, fav }));
+      exArticles(fav);
+    } catch (e) { fail(e); }
+    return;
+  }
+  location.hash = '#esplora';
+}
+
+/* =========================================================
+   Segui il filo: citing, cited and related works
+   ========================================================= */
+const FILO_TABS = [
+  ['citano', 'Chi lo cita', 'Studi successivi che hanno usato questo articolo, i più citati per primi.'],
+  ['cita', 'Cosa cita', 'Gli studi su cui si basa, i più citati per primi.'],
+  ['simili', 'Simili', 'Articoli che OpenAlex considera vicini per argomento.']
+];
+let filoRendered = '';
+async function renderFilo(parts) {
+  const id = String(parts[1] || '');
+  const tab = FILO_TABS.find(t => t[0] === parts[2]) ? parts[2] : 'citano';
+  const origin = $('#filo-origin'), tabs = $('#filo-tabs');
+  origin.textContent = ''; tabs.textContent = '';
+  if (!/^W\d+$/.test(id)) { origin.append(el('p', 'feed-status', 'Articolo non valido.')); return; }
+  for (const [t, label] of FILO_TABS) {
+    const a = el('a', null, label);
+    a.href = '#filo/' + id + '/' + t;
+    if (t === tab) a.setAttribute('aria-current', 'page');
+    tabs.append(a);
+  }
+  const hint = $('#filo-hint');
+  hint.textContent = FILO_TABS.find(t => t[0] === tab)[2];
+
+  const showOrigin = it => {
+    origin.textContent = '';
+    origin.append(el('p', 'note', 'Partendo da:'));
+    const a = el('a', 'row-title', it.title || 'Articolo');
+    a.href = safeUrl(it.url) || '#'; a.target = '_blank'; a.rel = 'noopener';
+    origin.append(a);
+    const bits = [it.journal, it.year].filter(Boolean).join(', ');
+    if (bits) origin.append(el('p', 'row-meta', bits));
+  };
+  const known = itemCache.get(id) || (rec(id) && rec(id).m);
+  if (known && known.title) showOrigin(known);
+  else {
+    origin.append(el('p', 'note', 'Carico…'));
+    oaGet('/works/' + id, meta.minimal ? {} : { select: SELECT })
+      .then(r => { const it = toItem(r); itemCache.set(it.id, it); showOrigin(it); })
+      .catch(() => { origin.textContent = ''; });
+  }
+
+  const filter = tab === 'citano' ? 'cites:' + id : tab === 'cita' ? 'cited_by:' + id : 'related_to:' + id;
+  const ctl = makeList({
+    list: $('#filo-list'), foot: $('#filo-foot'), ctx: 'filo',
+    empty: tab === 'citano' ? 'Nessuno lo ha ancora citato, secondo OpenAlex.' : tab === 'cita' ? 'OpenAlex non conosce la bibliografia di questo articolo.' : 'OpenAlex non ha articoli simili per questo.',
+    onFirst: res => { if (typeof res.count === 'number' && res.count) hint.textContent = FILO_TABS.find(t => t[0] === tab)[2] + ' In tutto: ' + fmtNum(res.count) + '.'; },
+    fetchPage: async page => {
+      const data = await worksQ(() => ({ filters: ['type:!paratext', filter], sort: tab === 'simili' ? '' : 'cited_by_count:desc', page, per: 10 }));
+      const items = toItems(data);
+      return { items, last: items.length < 10, count: data.meta && data.meta.count };
+    }
+  });
+  ctl.reset();
+  ctl.load();
+}
+
+/* =========================================================
+   Cerca: keywords or AI-assisted
+   ========================================================= */
+let sMode = 'kw', sSort = 'rel', sGen = 0;
+const SORTS = { rel: '', cit: 'cited_by_count:desc', new: 'publication_date:desc' };
+
+function setupNote() {
+  const box = el('div', 'panel-box');
+  box.append(el('p', null, "Per chiedere all'AI serve collegarla: è gratuita e si fa in un paio di minuti."));
+  const act = el('div', 'actions');
+  const a = el('a', 'btn solid', "Collega l'AI"); a.href = '#impostazioni/ai';
+  act.append(a); box.append(act);
+  return box;
+}
+function renderCercaControls() {
+  for (const b of document.querySelectorAll('#s-modes button')) b.setAttribute('aria-pressed', String(b.dataset.m === sMode));
+  for (const b of document.querySelectorAll('#s-sort button')) b.setAttribute('aria-pressed', String(b.dataset.s === sSort));
+  $('#s-sort').hidden = sMode !== 'kw';
+  const q = $('#s-q');
+  if (sMode === 'kw') {
+    q.placeholder = 'Es.: octopus camouflage';
+    $('#s-hint').textContent = 'Cerca nei titoli e negli abstract. Funziona meglio con parole in inglese, la lingua di quasi tutti gli articoli.';
+    $('#s-go').textContent = 'Cerca';
+  } else {
+    q.placeholder = 'Es.: perché alcuni uccelli imitano i suoni?';
+    $('#s-hint').textContent = aiReady()
+      ? "Scrivi in italiano, anche in modo vago. L'AI trasforma la domanda in ricerche su OpenAlex, poi sceglie tra gli articoli trovati e spiega perché."
+      : "Per usarla collega prima l'assistente AI in Impostazioni.";
+    $('#s-go').textContent = 'Chiedi';
+  }
+}
+function searchFilters() {
+  const f = [$('#s-rev').checked ? 'type:review' : 'type:article|review'];
+  if (!meta.minimal) f.push('is_retracted:false');
+  if ($('#s-oa').checked) f.push('open_access.is_oa:true');
+  return f;
+}
+function clearSearch() {
+  sGen++;
+  $('#s-list').textContent = ''; $('#s-foot').textContent = ''; $('#s-summary').textContent = '';
+  const rest = $('#s-rest'); rest.hidden = true; rest.open = false; $('#s-rest-list').textContent = '';
+}
+function runSearch() {
+  const text = $('#s-q').value.trim();
+  if (!text) { $('#s-q').focus(); return; }
+  $('#s-q').blur();
+  if (!apiKey && !keyless) { clearSearch(); $('#s-summary').append(el('p', 'feed-status err', 'Serve prima la chiave OpenAlex: la trovi nel Feed o in Impostazioni.')); return; }
+  if (sMode === 'ai') aiSearch(text); else kwSearch(text);
+}
+function kwSearch(text) {
+  clearSearch();
+  const sum = $('#s-summary');
+  const ctl = makeList({
+    list: $('#s-list'), foot: $('#s-foot'), ctx: 'search',
+    empty: 'Nessun risultato. Prova con altre parole, magari in inglese.',
+    onFirst: res => { sum.textContent = ''; if (res.count) sum.append(el('p', 'note', fmtNum(res.count) + (res.count === 1 ? ' risultato' : ' risultati') + ' su OpenAlex.')); },
+    fetchPage: async page => {
+      const data = await worksQ(() => ({ search: text, filters: searchFilters(), sort: SORTS[sSort], page, per: 10 }));
+      const items = toItems(data);
+      return { items, last: items.length < 10, count: data.meta && data.meta.count };
+    }
+  });
+  ctl.load();
+}
+function cleanQueries(qs) {
+  if (!Array.isArray(qs)) return [];
+  return qs.map(q => {
+    let s = String(q || '').replace(/[^\p{L}\p{N}\s"()'\-]/gu, ' ').replace(/\s+/g, ' ').trim().slice(0, 200);
+    if ((s.match(/"/g) || []).length % 2) s = s.replace(/"/g, '');
+    if ((s.match(/\(/g) || []).length !== (s.match(/\)/g) || []).length) s = s.replace(/[()]/g, '');
+    return s.trim();
+  }).filter(s => s.length >= 2).slice(0, 3);
+}
+async function aiSearch(text) {
+  clearSearch();
+  const gen = sGen;
+  const sum = $('#s-summary'), foot = $('#s-foot'), list = $('#s-list');
+  if (!aiReady()) { sum.append(setupNote()); return; }
+  const status = el('p', 'feed-status');
+  foot.append(status);
+  const say = (m, cls) => setStatus(status, m, cls);
+  try {
+    say('Capisco cosa cerchi…');
+    const plan = await aiJSON(planPrompt(text));
+    if (gen !== sGen) return;
+    const queries = cleanQueries(plan.queries);
+    if (!queries.length) throw { kind: 'ai', code: 'json' };
+    const summary = typeof plan.summary_it === 'string' ? trunc(plan.summary_it.trim(), 240) : '';
+    if (summary) sum.append(el('p', null, summary));
+    sum.append(el('p', 'note', 'Ricerche fatte su OpenAlex: ' + queries.join('; ') + '.'));
+    const filters = searchFilters().concat('has_abstract:true');
+    if (plan.reviews_only === true) filters[0] = 'type:review';
+    const y = new Date().getFullYear(), fy = Number(plan.from_year), ty = Number(plan.to_year);
+    if (Number.isInteger(fy) && fy > 1600 && fy <= y) filters.push('from_publication_date:' + fy + '-01-01');
+    if (Number.isInteger(ty) && ty > 1600 && ty <= y) filters.push('to_publication_date:' + ty + '-12-31');
+
+    say('Cerco su OpenAlex…');
+    const settled = await Promise.allSettled(queries.map(q => worksQ(() => ({ search: q, filters, page: 1, per: 15 }))));
+    if (gen !== sGen) return;
+    const ok = settled.filter(s => s.status === 'fulfilled').map(s => toItems(s.value));
+    if (!ok.length) throw settled[0].reason;
+    const seen = new Set(), cands = [];
+    for (const it of interleave(ok)) {
+      if (seen.has(it.id) || isHidden(it.id)) continue;
+      seen.add(it.id); cands.push(it);
+      if (cands.length >= 30) break;
+    }
+    if (!cands.length) { say('OpenAlex non ha trovato articoli per questa richiesta. Prova a descriverla in un altro modo.'); return; }
+
+    say('Scelgo gli articoli più adatti…');
+    const out = await aiJSON(choosePrompt(text, cands));
+    if (gen !== sGen) return;
+    const byId = new Map(cands.map(c => [c.id, c]));
+    const picked = [], pickedIds = new Set();
+    for (const p of (Array.isArray(out.picks) ? out.picks : [])) {
+      const c = p && byId.get(String(p.id || '').trim());
+      if (!c || pickedIds.has(c.id)) continue;
+      let why = typeof p.why === 'string' ? p.why.trim() : '';
+      if (why.length > 500 || !numbersOk(why, c.title + ' ' + c.abstract + ' ' + (c.year || ''))) why = '';
+      pickedIds.add(c.id);
+      picked.push(Object.assign({}, c, { why }));
+      if (picked.length >= 5) break;
+    }
+    for (const it of picked) list.append(entryEl(it, 'search'));
+    const rest = cands.filter(c => !pickedIds.has(c.id));
+    if (rest.length) {
+      const rl = $('#s-rest-list');
+      for (const it of rest) rl.append(entryEl(it, 'search'));
+      const det = $('#s-rest');
+      det.querySelector('summary').textContent = (rest.length === 1 ? 'Un altro articolo trovato' : 'Altri ' + rest.length + ' articoli trovati') + ' dalla ricerca';
+      det.hidden = false;
+    }
+    if (!picked.length) {
+      const note = typeof out.note_it === 'string' ? trunc(out.note_it.trim(), 300) : '';
+      say(note || 'Nessuno degli articoli trovati sembra davvero adatto. Prova a riformulare la richiesta.');
+    } else say('');
+  } catch (e) {
+    if (gen !== sGen) return;
+    say(errorCopy(e), 'err');
+    const b = btn('Cerca come parole chiave', 'btn');
+    b.onclick = () => { sMode = 'kw'; renderCercaControls(); kwSearch(text); };
+    foot.append(b);
+  }
+}
+
+/* =========================================================
+   Curiosità: AI-written hooks taken from real abstracts
+   ========================================================= */
+let cuGen = 0, cuShown = new Set(), cuLoaded = false, cuBusy = false;
+function renderCurioSources() {
+  const sel = $('#curio-src'), cur = sel.value;
+  sel.textContent = '';
+  const opt = (v, t) => { const o = el('option', null, t); o.value = v; sel.append(o); };
+  opt('sel', 'Dai preferiti del feed');
+  if (likedRecords().length) opt('perte', 'Da ciò che ti è piaciuto');
+  for (const f of state.favs) opt(f.id, f.name);
+  sel.value = [...sel.options].some(o => o.value === cur) ? cur : 'sel';
+}
+function renderCuriosita() {
+  const ready = aiReady();
+  $('#curio-setup').hidden = ready;
+  $('#curio-controls').hidden = !ready;
+  if (!ready) { $('#curio-more').hidden = true; setStatus('#curio-status', ''); return; }
+  renderCurioSources();
+  if (!cuLoaded) loadCurio(true);
+}
+function curioSources() {
+  const v = $('#curio-src').value;
+  if (v === 'perte') return forYouSources();
+  if (v === 'sel') { const s = selectedFavs(); return s.length ? s : state.favs; }
+  return state.favs.filter(f => f.id === v);
+}
+function curioEl(item, fact) {
+  const box = el('article', 'curio');
+  const lab = item.label || subIt(item.subfieldName) || item.topicName;
+  if (lab) box.append(el('p', 'entry-topic', lab));
+  box.append(el('p', 'curio-fact', fact));
+  const src = el('p', 'curio-src');
+  src.append('Da uno studio su ', el('i', null, item.journal || 'una rivista scientifica'), item.year ? ', ' + item.year + '.' : '.');
+  box.append(src);
+  const act = el('div', 'actions');
+  const open = btn('Scopri lo studio', 'btn solid');
+  open.setAttribute('aria-expanded', 'false');
+  act.append(open);
+  box.append(act);
+  const holder = el('div', 'curio-entry');
+  holder.hidden = true;
+  box.append(holder);
+  open.onclick = () => {
+    if (!holder.firstChild) holder.append(entryEl(item, 'curio', { noLabel: true, removeEl: box }));
+    holder.hidden = !holder.hidden;
+    open.setAttribute('aria-expanded', String(!holder.hidden));
+    open.textContent = holder.hidden ? 'Scopri lo studio' : 'Chiudi lo studio';
+  };
+  return box;
+}
+async function loadCurio(reset) {
+  if (cuBusy && !reset) return;
+  if (!apiKey && !keyless) { setStatus('#curio-status', 'Serve prima la chiave OpenAlex: la trovi nel Feed o in Impostazioni.', 'err'); return; }
+  const gen = ++cuGen;
+  cuBusy = true; cuLoaded = true;
+  const list = $('#curio-list'), more = $('#curio-more');
+  if (reset) { list.textContent = ''; cuShown = new Set(); }
+  more.hidden = true;
+  setStatus('#curio-status', 'Cerco articoli…');
+  try {
+    const srcs = curioSources();
+    if (!srcs.length) throw { kind: 'none' };
+    const cands = [];
+    for (let attempt = 0; attempt < 2 && cands.length < 6; attempt++) {
+      const picks = pickSources(srcs, Math.min(2, srcs.length));
+      const settled = await Promise.allSettled(picks.map(s => fetchSource(s, s.kind === 'rel' ? 'perte' : 'sorpresa')));
+      if (gen !== cuGen) return;
+      const ok = settled.filter(s => s.status === 'fulfilled').map(s => s.value);
+      if (!ok.length) throw settled[0].reason;
+      for (const it of interleave(ok)) {
+        if (cuShown.has(it.id) || isKnown(it.id) || cands.some(c => c.id === it.id) || (it.abstract || '').length < 300) continue;
+        cands.push(it);
+        if (cands.length >= 8) break;
+      }
+    }
+    if (!cands.length) {
+      setStatus('#curio-status', 'Non ho trovato articoli nuovi con un abstract abbastanza ricco. Prova con altri argomenti.');
+      more.hidden = false;
+      return;
+    }
+    setStatus('#curio-status', 'Cerco le curiosità negli abstract…');
+    const out = await aiJSON(factsPrompt(cands));
+    if (gen !== cuGen) return;
+    const byId = new Map(cands.map(c => [c.id, c]));
+    let n = 0;
+    for (const f of (Array.isArray(out.facts) ? out.facts : [])) {
+      const c = f && byId.get(String(f.id || '').trim());
+      if (!c || cuShown.has(c.id)) continue;
+      const fact = typeof f.fact === 'string' ? f.fact.trim() : '';
+      if (fact.length < 15 || fact.length > 320 || !numbersOk(fact, c.title + ' ' + c.abstract)) continue;
+      cuShown.add(c.id);
+      list.append(curioEl(c, fact));
+      n++;
+    }
+    for (const c of cands) cuShown.add(c.id);
+    setStatus('#curio-status', n ? '' : "In questi abstract non c'era niente di abbastanza curioso. Riprova.");
+    more.hidden = false;
+  } catch (e) {
+    if (gen !== cuGen) return;
+    if (e && e.kind === 'none') setStatus('#curio-status', 'Non ci sono argomenti da cui pescare. Scegline qualcuno nel feed.');
+    else setStatus('#curio-status', errorCopy(e), 'err');
+    more.hidden = false;
+  } finally {
+    if (gen === cuGen) cuBusy = false;
+  }
+}
+
+/* =========================================================
+   Raccolta: saved and read
+   ========================================================= */
+let raccoltaTab = 'salvati';
+function savedItems() { return Object.values(state.items).filter(r => r && r.saved && r.m).sort((a, b) => (b.t || 0) - (a.t || 0)); }
+function readItems() { return Object.values(state.items).filter(r => r && r.read && r.m).sort((a, b) => (b.readAt || b.t || 0) - (a.readAt || a.t || 0)); }
+function updateRaccoltaCount() {
+  const letti = raccoltaTab === 'letti';
+  const n = letti ? readItems().length : savedItems().length;
+  $('#r-count').textContent = !n ? '' : letti
+    ? (n === 1 ? '1 articolo letto. Non tornerà nel feed.' : n + ' articoli letti. Non torneranno nel feed.')
+    : (n === 1 ? '1 articolo da leggere con calma.' : n + ' articoli da leggere con calma.');
+}
+function renderRaccolta(parts) {
+  raccoltaTab = parts[1] === 'letti' ? 'letti' : 'salvati';
+  for (const a of $('#r-tabs').children) {
+    if (a.dataset.t === raccoltaTab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  }
+  const saved = $('#saved-list'), read = $('#read-list');
+  saved.textContent = ''; read.textContent = '';
+  saved.hidden = raccoltaTab !== 'salvati';
+  read.hidden = raccoltaTab !== 'letti';
+  updateRaccoltaCount();
+  if (raccoltaTab === 'salvati') {
+    const items = savedItems();
+    if (!items.length) { saved.append(el('p', 'empty', 'Ancora niente. Tocca «Salva» sugli articoli che vuoi tenere da parte.')); return; }
+    for (const r of items) saved.append(entryEl(r.m, 'saved'));
+    return;
+  }
+  const items = readItems();
+  if (!items.length) { read.append(el('p', 'empty', 'Quando apri un articolo o lo segni come letto, compare qui e non torna più nel feed.')); return; }
+  for (const r of items) {
+    const m = r.m;
+    const row = el('div', 'row');
+    const a = el('a', 'row-title', m.title || 'Senza titolo');
+    a.href = safeUrl(m.url) || '#'; a.target = '_blank'; a.rel = 'noopener';
+    row.append(a);
+    const bits = [m.journal, m.year].filter(Boolean).join(', ');
+    row.append(el('p', 'row-meta', (bits ? bits + '. ' : '') + 'Letto il ' + fmtDate(r.readAt || r.t) + '.'));
+    row.append(rateRow(m, ratingToast));
+    const act = el('div', 'actions secondary');
+    const filo = el('a', 'btn', 'Segui il filo'); filo.href = '#filo/' + m.id;
+    const undo = btn('Rimetti tra i non letti', 'btn');
+    undo.onclick = () => { update(m, { read: false, rating: null, ratedAt: null }); renderRaccolta(['raccolta', 'letti']); toast('Può tornare nel feed.'); };
+    act.append(filo, undo);
+    row.append(act);
+    read.append(row);
+  }
+}
+
+/* =========================================================
+   Feed controls
+   ========================================================= */
+let prefTimer;
+function prefsChanged(delay) {
+  state.prefs.t = Date.now();
+  saveState();
+  clearTimeout(prefTimer);
+  prefTimer = setTimeout(resetFeed, delay || 0);
+}
+function renderControls() {
+  const chips = $('#chips');
+  chips.textContent = '';
+  for (const f of state.favs) {
+    const b = btn(f.name, 'chip');
+    b.setAttribute('aria-pressed', String(state.prefs.topics.includes(f.id)));
+    b.onclick = () => {
+      const on = state.prefs.topics.includes(f.id);
+      state.prefs.topics = on ? state.prefs.topics.filter(x => x !== f.id) : state.prefs.topics.concat(f.id);
+      b.setAttribute('aria-pressed', String(!on));
+      updateAllChip();
+      prefsChanged(800);
+    };
+    chips.append(b);
+  }
+  if (state.favs.length) {
+    const all = btn('', 'chip-link');
+    all.id = 'chip-all';
+    all.onclick = () => {
+      const everything = state.prefs.topics.length === state.favs.length;
+      state.prefs.topics = everything ? [] : state.favs.map(f => f.id);
+      renderControls();
+      prefsChanged(everything ? 0 : 300);
+    };
+    chips.append(all);
+  }
+  const add = el('a', 'chip-link', 'Aggiungi da Esplora');
+  add.href = '#esplora';
+  chips.append(add);
+  updateAllChip();
+  for (const b of document.querySelectorAll('#modes button')) b.setAttribute('aria-pressed', String(b.dataset.mode === state.prefs.mode));
+  $('#mode-hint').textContent = MODES[state.prefs.mode] + (state.prefs.intro ? INTRO_HINT : '');
+  $('#t-big').checked = state.prefs.big;
+  $('#t-oa').checked = state.prefs.oa;
+  $('#t-intro').checked = state.prefs.intro;
+}
+function updateAllChip() {
+  const b = $('#chip-all');
+  if (b) b.textContent = state.prefs.topics.length === state.favs.length ? 'Togli tutti' : 'Scegli tutti';
+}
+
+/* =========================================================
+   Sync (GitHub gist) and manual transfer code
+   ========================================================= */
+let syncing = false, syncAgain = false, syncTimer = null, started = false;
+function scheduleSync() {
+  if (!gh.token) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncNow, 4000);
+}
+function serialize() { return JSON.stringify({ v: 2, app: 'wunderkammer', items: state.items, prefs: state.prefs, favs: state.favs, favsT: state.favsT }); }
+
+function cleanRecord(id, r) {
+  if (!r || typeof r !== 'object' || typeof id !== 'string' || !/^W\d+$/.test(id)) return null;
+  const m = r.m && typeof r.m === 'object' ? r.m : {};
+  const str = (v, n = 600) => (typeof v === 'string' ? v.slice(0, n) : '');
+  const rating = RATINGS.some(x => x.v === r.rating) ? r.rating : null;
+  const out = {
+    id, t: Number(r.t) || 0, read: !!r.read, saved: !!r.saved, hidden: !!r.hidden,
+    readAt: Number(r.readAt) || null, rating, ratedAt: rating == null ? null : (Number(r.ratedAt) || null),
+    m: {
+      id, title: str(m.title), journal: str(m.journal), authors: str(m.authors), topic: str(m.topic, 120),
+      url: safeUrl(m.url), pdf: safeUrl(m.pdf), year: Number(m.year) || null,
+      cites: typeof m.cites === 'number' ? m.cites : null, oa: !!m.oa, review: !!m.review,
+      topicId: /^T\d+$/.test(m.topicId || '') ? m.topicId : '', topicName: str(m.topicName, 200),
+      subfieldId: /^\d+$/.test(m.subfieldId || '') ? m.subfieldId : '', subfieldName: str(m.subfieldName, 200),
+      fieldId: /^\d+$/.test(m.fieldId || '') ? m.fieldId : ''
+    }
+  };
+  if (out.saved && m.abstract) out.m.abstract = str(m.abstract, 8000);
+  return out;
+}
+function mergeIn(data) {
+  const res = { changed: 0, prefs: false, favs: false };
+  if (!data || typeof data !== 'object') return res;
+  if (data.items && typeof data.items === 'object') {
+    for (const [id, raw] of Object.entries(data.items)) {
+      const r = cleanRecord(id, raw);
+      if (!r) continue;
+      const l = state.items[id];
+      if (!l || r.t > (l.t || 0)) { state.items[id] = r; res.changed++; }
+    }
+  }
+  if (Array.isArray(data.favs) && (Number(data.favsT) || 0) > (state.favsT || 0)) {
+    const f = cleanFavs(data.favs);
+    if (f) { state.favs = f; state.favsT = Number(data.favsT); res.favs = true; res.changed++; }
+  }
+  const p = cleanPrefs(data.prefs);
+  if (p && p.t > (state.prefs.t || 0)) { state.prefs = p; res.prefs = true; res.changed++; }
+  else if (res.favs) state.prefs.topics = state.prefs.topics.filter(id => state.favs.some(f => f.id === id));
+  return res;
+}
+function afterMerge(res) {
+  if (!res.changed) return;
+  if (res.prefs || res.favs) renderControls();
+  const view = currentView();
+  if (view === 'raccolta') renderRaccolta(parseRoute());
+  if (view === 'impostazioni') renderFavSettings();
+  if ((res.prefs || res.favs) && started) resetFeed();
+}
+
+async function ghFetch(path, opts = {}) {
+  const headers = { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + gh.token };
+  if (opts.body) headers['Content-Type'] = 'application/json';
+  let r;
+  try { r = await fetch('https://api.github.com' + path, Object.assign({}, opts, { headers, cache: 'no-store' })); }
+  catch (e) { throw { kind: 'net' }; }
+  if (!r.ok) throw { kind: 'http', status: r.status };
+  return r.status === 204 ? null : r.json();
+}
+async function findOrCreateGist() {
+  for (let page = 1; page <= 5; page++) {
+    const list = await ghFetch('/gists?per_page=100&page=' + page);
+    const g = (list || []).find(x => x.description === GIST_DESC && x.files && x.files[GIST_FILE]);
+    if (g) return g.id;
+    if (!list || list.length < 100) break;
+  }
+  const created = await ghFetch('/gists', {
+    method: 'POST',
+    body: JSON.stringify({ description: GIST_DESC, public: false, files: { [GIST_FILE]: { content: serialize() } } })
+  });
+  return created.id;
+}
+function ghErrorCopy(e) {
+  if (e && e.kind === 'http' && e.status === 401) return 'GitHub non accetta il token: forse è scaduto o incompleto. Creane uno nuovo.';
+  if (e && e.kind === 'http' && (e.status === 403 || e.status === 404)) return 'Il token non ha il permesso «gist». Creane uno nuovo con quel permesso.';
+  if (e && e.kind === 'net') return 'GitHub non è raggiungibile. Riprovo alla prossima modifica.';
+  return 'Sincronizzazione non riuscita. Riprova con «Sincronizza ora».';
+}
+function setSyncStatus(msg, cls) { setStatus('#s-gh-status', msg, cls); }
+async function syncNow() {
+  if (!gh.token) return false;
+  if (syncing) { syncAgain = true; return false; }
+  syncing = true;
+  setSyncStatus('Sincronizzazione in corso…');
+  try {
+    if (!gh.gist) { gh.gist = await findOrCreateGist(); store.set('wk-gh', gh); }
+    let g;
+    try { g = await ghFetch('/gists/' + gh.gist); }
+    catch (e) {
+      if (e && e.kind === 'http' && e.status === 404) { gh.gist = await findOrCreateGist(); store.set('wk-gh', gh); g = await ghFetch('/gists/' + gh.gist); }
+      else throw e;
+    }
+    const f = g && g.files && g.files[GIST_FILE];
+    let remoteText = f ? (f.content || '') : '';
+    if (f && f.truncated && safeUrl(f.raw_url)) remoteText = await (await fetch(f.raw_url, { cache: 'no-store' })).text();
+    let remote = null;
+    try { remote = JSON.parse(remoteText); } catch (e) { remote = null; }
+    const res = mergeIn(remote);
+    if (res.changed) { persist(); afterMerge(res); }
+    const local = serialize();
+    if (local !== remoteText) {
+      await ghFetch('/gists/' + gh.gist, { method: 'PATCH', body: JSON.stringify({ files: { [GIST_FILE]: { content: local } } }) });
+    }
+    gh.last = Date.now();
+    store.set('wk-gh', gh);
+    setSyncStatus('Sincronizzato alle ' + fmtTime(gh.last) + '.', 'ok');
+    return true;
+  } catch (e) {
+    setSyncStatus(ghErrorCopy(e), 'err');
+    return false;
+  } finally {
+    syncing = false;
+    if (syncAgain) { syncAgain = false; scheduleSync(); }
+  }
+}
+
+function b64encode(s) {
+  const bytes = new TextEncoder().encode(s);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+function b64decode(b) {
+  const bin = atob(b);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+async function shareCode() {
+  const code = 'WK1.' + b64encode(serialize());
+  const out = $('#code-out');
+  out.value = code; out.hidden = false;
+  if (navigator.share) {
+    try { await navigator.share({ title: 'Wunderkammer', text: code }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  try { await navigator.clipboard.writeText(code); setStatus('#code-status', "Codice copiato. Incollalo sull'altro dispositivo.", 'ok'); }
+  catch (e) { out.focus(); out.select(); setStatus('#code-status', 'Seleziona il codice qui sopra e copialo.'); }
+}
+function mergeCode() {
+  const raw = $('#code-in').value.replace(/\s+/g, '');
+  if (!raw) { setStatus('#code-status', "Incolla prima il codice dell'altro dispositivo.", 'err'); return; }
+  try {
+    const json = raw.startsWith('WK1.') ? b64decode(raw.slice(4)) : raw;
+    const res = mergeIn(JSON.parse(json));
+    saveState();
+    afterMerge(res);
+    $('#code-in').value = '';
+    setStatus('#code-status', res.changed ? 'Fatto: ' + res.changed + (res.changed === 1 ? ' elemento aggiornato.' : ' elementi aggiornati.') : 'Fatto: era già tutto uguale.', 'ok');
+  } catch (e) {
+    setStatus('#code-status', 'Il codice non è valido. Copialo di nuovo per intero.', 'err');
+  }
+}
+
+/* =========================================================
+   Settings
+   ========================================================= */
+let aiBusy = false;
+function renderAISettings() {
+  const cfg = aiCfg(), P = AIP[ai.provider];
+  $('#ai-provider').value = ai.provider;
+  const ol = $('#ai-steps');
+  ol.textContent = '';
+  for (const step of P.steps) {
+    const li = el('li');
+    for (const part of step) {
+      if (Array.isArray(part)) { const a = el('a', null, part[0]); a.href = part[1]; a.target = '_blank'; a.rel = 'noopener'; li.append(a); }
+      else li.append(part);
+    }
+    ol.append(li);
+  }
+  $('#ai-note').textContent = P.note;
+  $('#ai-key').value = cfg.key;
+  const sel = $('#ai-model');
+  sel.textContent = '';
+  const models = (cfg.models && cfg.models.length ? cfg.models : []).slice();
+  if (cfg.model && !models.some(m => m.id === cfg.model)) models.unshift({ id: cfg.model, label: cfg.model });
+  for (const m of models) {
+    const o = el('option', null, m.label && m.label !== m.id ? m.label + ' (' + m.id + ')' : m.id);
+    o.value = m.id;
+    sel.append(o);
+  }
+  if (cfg.model) sel.value = cfg.model;
+  $('#ai-model-row').hidden = !cfg.key || !models.length;
+  $('#ai-del-row').hidden = !cfg.key;
+  if (!aiBusy) setStatus('#ai-status', aiReady() ? 'Collegato. Modello in uso: ' + cfg.model + '.' : (cfg.key ? '' : 'Nessuna chiave salvata.'), aiReady() ? 'ok' : '');
+}
+async function saveAIKey() {
+  const k = $('#ai-key').value.trim();
+  if (!k) { setStatus('#ai-status', 'Incolla prima la chiave.', 'err'); return; }
+  const prov = ai.provider, cfg = ai[prov], P = AIP[prov];
+  cfg.key = k;
+  aiBusy = true;
+  $('#ai-save').disabled = true;
+  setStatus('#ai-status', 'Controllo la chiave…');
+  try {
+    let models = [];
+    try { models = await P.models(k); }
+    catch (e) { if (e && e.code === 'key') throw e; models = []; }
+    cfg.models = models;
+    if (!cfg.model || (models.length && !models.some(m => m.id === cfg.model))) cfg.model = models.length ? P.pick(models) : P.fallback;
+    saveAI();
+    await aiJSON('Rispondi solo con questo JSON: {"ok": true}');
+    aiBusy = false;
+    renderAISettings();
+    setStatus('#ai-status', 'Funziona. Modello in uso: ' + cfg.model + '.', 'ok');
+    cuLoaded = false;
+    renderCercaControls();
+  } catch (e) {
+    aiBusy = false;
+    saveAI();
+    renderAISettings();
+    setStatus('#ai-status', aiErrorCopy(e), 'err');
+  } finally {
+    $('#ai-save').disabled = false;
+  }
+}
+function renderFavSettings() {
+  const box = $('#fav-list');
+  box.textContent = '';
+  if (!state.favs.length) box.append(el('p', 'note', 'Nessun preferito.'));
+  for (const f of state.favs) {
+    const row = el('div', 'fav-row');
+    const s = el('span', null, f.name);
+    s.append(el('small', null, KIND_LABEL[f.kind] || ''));
+    const b = btn('Rimuovi', 'btn');
+    b.onclick = () => {
+      state.favs = state.favs.filter(x => x.id !== f.id);
+      state.prefs.topics = state.prefs.topics.filter(x => x !== f.id);
+      state.favsT = Date.now();
+      renderControls(); renderFavSettings(); prefsChanged(800);
+    };
+    row.append(s, b);
+    box.append(row);
+  }
+}
+function renderSettings() {
+  $('#s-key').value = apiKey;
+  setStatus('#s-key-status', apiKey ? 'Chiave salvata su questo dispositivo.' : (keyless ? 'Stai usando OpenAlex senza chiave: poche richieste al giorno.' : 'Nessuna chiave salvata.'), apiKey ? 'ok' : '');
+  renderAISettings();
+  renderFavSettings();
+  $('#s-gh').value = gh.token || '';
+  $('#s-gh-actions').hidden = !gh.token;
+  $('#s-gh-save').textContent = gh.token ? 'Aggiorna token' : 'Collega';
+  if (!syncing) {
+    if (gh.token && gh.last) setSyncStatus('Ultima sincronizzazione alle ' + fmtTime(gh.last) + ' del ' + fmtDate(gh.last) + '.', 'ok');
+    else if (!gh.token) setSyncStatus('');
+  }
+  $('#s-theme').value = store.get('wk-theme', 'auto');
+  $('#journal-list').textContent = 'Con «Grandi riviste» attivo, il feed pesca solo da: ' + JOURNALS.map(j => j[0]).join(', ') + '.';
+}
+function saveKey(value) {
+  apiKey = (value || '').trim();
+  store.set('wk-key', apiKey);
+  if (apiKey) { keyless = false; store.set('wk-keyless', false); }
+}
+
+/* =========================================================
+   Router
+   ========================================================= */
+const VIEWS = ['feed', 'curiosita', 'esplora', 'cerca', 'raccolta', 'filo', 'impostazioni'];
+function parseRoute() {
+  let h = (location.hash || '').slice(1);
+  try { h = decodeURIComponent(h); } catch (e) {}
+  const parts = h.split('/').filter(Boolean);
+  return parts.length ? parts : ['feed'];
+}
+function currentView() { const v = parseRoute()[0]; return VIEWS.includes(v) ? v : 'feed'; }
+let curHash = null;
+const scrollMem = {};
+function route() {
+  if (curHash !== null) scrollMem[curHash] = window.scrollY;
+  const hash = location.hash || '#feed';
+  const parts = parseRoute(), view = currentView();
+  for (const v of VIEWS) $('#view-' + v).hidden = v !== view;
+  for (const a of document.querySelectorAll('.tabs a')) {
+    if (a.dataset.view === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  }
+  curHash = hash;
+  const restore = () => window.scrollTo(0, scrollMem[hash] || 0);
+  if (view === 'feed') { requestAnimationFrame(() => drawFern(false)); restore(); }
+  else if (view === 'esplora') {
+    $('.tabs a[data-view="esplora"]').setAttribute('href', hash);
+    if (exRendered === hash) restore();
+    else { exRendered = hash; window.scrollTo(0, 0); renderEsplora(parts).then(restore); }
+  } else if (view === 'filo') {
+    if (filoRendered === hash) restore();
+    else { filoRendered = hash; window.scrollTo(0, 0); renderFilo(parts); }
+  } else if (view === 'raccolta') { renderRaccolta(parts); restore(); }
+  else if (view === 'curiosita') { renderCuriosita(); restore(); }
+  else if (view === 'cerca') { renderCercaControls(); restore(); }
+  else if (view === 'impostazioni') {
+    renderSettings();
+    if (parts[1] === 'ai') requestAnimationFrame(() => $('#set-ai').scrollIntoView()); else restore();
+  }
+}
+
+/* =========================================================
+   Masthead fern (Barnsley IFS, drawn like a cyanotype)
+   ========================================================= */
+let fernW = 0;
+function drawFern(animate) {
+  const c = $('#fern');
+  if (!c) return;
+  const rect = c.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  if (!animate && Math.round(rect.width) === fernW) return;
+  fernW = Math.round(rect.width);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = Math.round(rect.width * dpr), H = Math.round(rect.height * dpr);
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(236,245,252,0.05)';
+  for (let i = 0; i < W * H / 900; i++) ctx.fillRect(Math.random() * W, Math.random() * H, dpr, dpr);
+  const wide = W / H > 2.2;
+  const s = H * (wide ? 1.3 : 1.12) / 10;
+  const bx = W * (wide ? 0.84 : 1.04), by = H * 1.04;
+  const ang = wide ? -0.62 : -0.4, ca = Math.cos(ang), sa = Math.sin(ang);
+  const total = Math.round(Math.min(95000, Math.max(30000, W * H / 6)));
+  const dot = Math.max(1, 1.15 * dpr);
+  ctx.fillStyle = 'rgba(236,245,252,0.30)';
+  let x = 0, y = 0;
+  const step = n => {
+    for (let i = 0; i < n; i++) {
+      const r = Math.random();
+      let nx, ny;
+      if (r < 0.01) { nx = 0; ny = 0.16 * y; }
+      else if (r < 0.86) { nx = 0.85 * x + 0.04 * y; ny = -0.04 * x + 0.85 * y + 1.6; }
+      else if (r < 0.93) { nx = 0.2 * x - 0.26 * y; ny = 0.23 * x + 0.22 * y + 1.6; }
+      else { nx = -0.15 * x + 0.28 * y; ny = 0.26 * x + 0.24 * y + 0.44; }
+      x = nx; y = ny;
+      const vx = x * s, vy = -y * s;
+      ctx.fillRect(bx + vx * ca - vy * sa, by + vx * sa + vy * ca, dot, dot);
+    }
+  };
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!animate || reduce) { step(total); return; }
+  const frames = 55, per = Math.ceil(total / frames);
+  let f = 0;
+  const tick = () => { step(per); if (++f < frames) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}
+
+/* =========================================================
+   Wiring and start
+   ========================================================= */
+function applyTheme(v) {
+  if (v === 'light' || v === 'dark') document.documentElement.dataset.theme = v;
+  else delete document.documentElement.dataset.theme;
+}
+function wire() {
+  for (const b of document.querySelectorAll('#modes button')) {
+    b.onclick = () => {
+      if (state.prefs.mode === b.dataset.mode) return;
+      state.prefs.mode = b.dataset.mode;
+      renderControls();
+      prefsChanged(0);
+    };
+  }
+  $('#t-big').onchange = e => { state.prefs.big = e.target.checked; renderControls(); prefsChanged(0); };
+  $('#t-oa').onchange = e => { state.prefs.oa = e.target.checked; renderControls(); prefsChanged(0); };
+  $('#t-intro').onchange = e => { state.prefs.intro = e.target.checked; renderControls(); prefsChanged(0); };
+  $('#load-more').onclick = () => { if (feedError || !feedCount) resetFeed(); else loadMore(); };
+
+  $('#ob-save').onclick = () => {
+    const v = $('#ob-key').value.trim();
+    if (!v) { $('#ob-key').focus(); return; }
+    saveKey(v); resetFeed();
+  };
+  $('#ob-skip').onclick = () => { keyless = true; store.set('wk-keyless', true); resetFeed(); };
+
+  for (const b of document.querySelectorAll('#s-modes button')) b.onclick = () => { sMode = b.dataset.m; renderCercaControls(); };
+  for (const b of document.querySelectorAll('#s-sort button')) b.onclick = () => { if (sSort === b.dataset.s) return; sSort = b.dataset.s; renderCercaControls(); if ($('#s-q').value.trim() && sMode === 'kw') runSearch(); };
+  $('#s-go').onclick = runSearch;
+  $('#s-q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); runSearch(); } });
+
+  $('#curio-go').onclick = () => loadCurio(true);
+  $('#curio-more').onclick = () => loadCurio(false);
+
+  $('#s-key-save').onclick = () => {
+    const v = $('#s-key').value.trim();
+    if (!v) { setStatus('#s-key-status', 'Incolla prima la chiave.', 'err'); return; }
+    saveKey(v); renderSettings(); resetFeed();
+  };
+  $('#s-key-del').onclick = () => { saveKey(''); renderSettings(); resetFeed(); };
+
+  $('#ai-provider').onchange = e => { ai.provider = e.target.value === 'openrouter' ? 'openrouter' : 'gemini'; saveAI(); renderAISettings(); renderCercaControls(); };
+  $('#ai-save').onclick = saveAIKey;
+  $('#ai-model').onchange = e => { aiCfg().model = e.target.value; saveAI(); setStatus('#ai-status', 'Modello in uso: ' + e.target.value + '.', 'ok'); };
+  $('#ai-del').onclick = () => { const c = aiCfg(); c.key = ''; c.model = ''; c.models = []; saveAI(); renderAISettings(); renderCercaControls(); };
+
+  $('#fav-reset').onclick = () => {
+    let added = 0;
+    for (const d of DEFAULT_FAVS) if (!isFav(d.id)) { state.favs.push(Object.assign({}, d)); state.prefs.topics.push(d.id); added++; }
+    state.favsT = Date.now();
+    renderControls(); renderFavSettings(); prefsChanged(800);
+    toast(added ? 'Preferiti iniziali ripristinati.' : 'Ci sono già tutti.');
+  };
+
+  $('#s-gh-save').onclick = async () => {
+    const v = $('#s-gh').value.trim();
+    if (!v) { setSyncStatus('Incolla prima il token.', 'err'); return; }
+    gh = { token: v, gist: '', last: 0 };
+    store.set('wk-gh', gh);
+    $('#s-gh-actions').hidden = false;
+    $('#s-gh-save').textContent = 'Aggiorna token';
+    const ok = await syncNow();
+    if (ok) setSyncStatus("Collegato. Inserisci lo stesso token sull'altro dispositivo.", 'ok');
+  };
+  $('#s-gh-sync').onclick = () => syncNow();
+  $('#s-gh-del').onclick = () => {
+    gh = { token: '', gist: '', last: 0 };
+    store.del('wk-gh');
+    renderSettings();
+    setSyncStatus('Scollegato. I dati su questo dispositivo restano.');
+  };
+  $('#code-share').onclick = shareCode;
+  $('#code-merge').onclick = mergeCode;
+  $('#s-theme').onchange = e => { store.set('wk-theme', e.target.value); applyTheme(e.target.value); };
+  $('#s-wipe').onclick = () => {
+    if (!confirm('Cancellare letti, salvati, valutazioni, preferiti, chiavi e collegamento a GitHub da questo dispositivo?')) return;
+    for (const k of ['wk-state', 'wk-key', 'wk-keyless', 'wk-gh', 'wk-meta', 'wk-theme', 'wk-ai', 'wk-tax']) store.del(k);
+    location.hash = '#feed';
+    location.reload();
+  };
+
+  $('.tabs a[data-view="esplora"]').addEventListener('click', e => {
+    if (currentView() === 'esplora') { e.preventDefault(); location.hash = '#esplora'; }
+  });
+  window.addEventListener('hashchange', route);
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => drawFern(false), 200); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && gh.token && Date.now() - (gh.last || 0) > 60000) syncNow();
+  });
+  const more = $('#load-more');
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting) && !feedLoading && !feedError && feedCount > 0 && currentView() === 'feed' && !more.hidden && more.textContent !== 'Riprova') loadMore();
+    }, { rootMargin: '300px' }).observe(more);
+  }
+}
+
+async function start() {
+  try {
+    applyTheme(store.get('wk-theme', 'auto'));
+    renderControls();
+    renderCercaControls();
+    wire();
+    route();
+    drawFern(true);
+    updateOnboard();
+    window.__wkStarted = true;
+  } catch (e) {
+    if (window.__wkShowError) window.__wkShowError("L'app non è partita a causa di un errore.", (e && e.message) || String(e));
+    return;
+  }
+  if (gh.token) await Promise.race([syncNow(), sleep(5000)]);
+  started = true;
+  resetFeed();
+}
+start();
+})();
+</script>
+</body>
+</html>
