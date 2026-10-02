@@ -256,6 +256,18 @@ textarea.code { width: 100%; min-height: 6.5rem; margin-top: 0.6rem; font: inher
 .tabs a[aria-current="page"] { color: var(--blue); border-top-color: var(--blue); font-weight: 700; }
 .tabs svg { width: 22px; height: 22px; }
 
+/* Translate-in-context: button near the selection and card above the tabs */
+.gloss-btn { position: fixed; z-index: 30; top: 0; left: 0; font: inherit; font-size: 0.93rem; font-weight: 700; min-height: 42px; padding: 0.55rem 1rem; border: 0; border-radius: 3px; background: var(--ink); color: var(--paper); box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28); cursor: pointer; }
+.gloss { position: fixed; z-index: 40; left: 0.75rem; right: 0.75rem; bottom: calc(var(--tabs-h) + env(safe-area-inset-bottom, 0px) + 0.75rem); max-width: 560px; margin: 0 auto; max-height: 58vh; overflow-y: auto; background: var(--paper); color: var(--ink); border: 1px solid var(--blue); border-radius: 4px; padding: 0.9rem 1.1rem 1rem; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28); }
+.gloss-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+.gloss-term { margin: 0.3rem 0 0; font-family: var(--serif); font-weight: 600; font-size: 1.12rem; line-height: 1.3; overflow-wrap: anywhere; }
+.gloss-x { flex: none; width: 40px; height: 40px; margin: -0.3rem -0.5rem 0 0; font: inherit; font-size: 1.5rem; line-height: 1; background: none; border: 0; color: var(--muted); cursor: pointer; }
+.gloss-tr { margin: 0.45rem 0 0; font-family: var(--serif); font-size: 1.3rem; line-height: 1.3; color: var(--blue); overflow-wrap: anywhere; }
+.gloss-ex { margin: 0.5rem 0 0; font-size: 0.97rem; line-height: 1.5; }
+.gloss-fr { margin: 0.7rem 0 0; padding-top: 0.6rem; border-top: 1px solid var(--rule); font-size: 0.93rem; line-height: 1.5; color: var(--muted); }
+.gloss-fr b { color: var(--ink); font-weight: 700; }
+.gloss .note { margin: 0.6rem 0 0; }
+.gloss .actions { margin-top: 0.8rem; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); z-index: 20; bottom: calc(var(--tabs-h) + env(safe-area-inset-bottom, 0px) + 0.75rem); display: flex; align-items: center; gap: 1rem; max-width: calc(100% - 2rem); width: max-content; background: var(--ink); color: var(--paper); padding: 0.7rem 1rem; border-radius: 4px; font-size: 0.93rem; }
 .toast button { font: inherit; font-weight: 700; background: none; border: 0; color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 0.25rem 0; }
 </style>
@@ -513,7 +525,7 @@ textarea.code { width: 100%; min-height: 6.5rem; margin-top: 0.6rem; font: inher
       <div class="setting">
         <h2>Dati su questo dispositivo</h2>
         <p>Cancella letti, salvati, valutazioni, preferiti, chiavi e collegamento a GitHub da questo dispositivo. Il file su GitHub resta.</p>
-        <p class="note">Wunderkammer, versione 2.1.</p>
+        <p class="note">Wunderkammer, versione 2.2.</p>
         <div class="actions"><button class="btn" type="button" id="s-wipe">Cancella tutto</button></div>
       </div>
     </div>
@@ -528,6 +540,11 @@ textarea.code { width: 100%; min-height: 6.5rem; margin-top: 0.6rem; font: inher
   <a href="#raccolta" data-view="raccolta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v18l-5-4-5 4z"/></svg>Raccolta</a>
 </nav>
 
+<button class="gloss-btn" id="gloss-btn" type="button" hidden>Traduci</button>
+<div class="gloss" id="gloss" role="dialog" aria-label="Traduzione" hidden>
+  <div class="gloss-head"><p class="gloss-term" id="gloss-term" lang="en"></p><button class="gloss-x" id="gloss-x" type="button" aria-label="Chiudi">×</button></div>
+  <div id="gloss-body"></div>
+</div>
 <div class="toast" id="toast" role="status" hidden></div>
 <script>
 (() => {
@@ -1112,10 +1129,10 @@ function parseLoose(t) {
   if (a >= 0 && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch (e) {} }
   return null;
 }
-async function aiJSON(user) {
+async function aiJSON(user, system) {
   const cfg = aiCfg();
   if (!cfg.key || !cfg.model) throw { kind: 'ai', code: 'nokey' };
-  const text = await AIP[ai.provider].chat(cfg.key, cfg.model, AI_SYSTEM, user);
+  const text = await AIP[ai.provider].chat(cfg.key, cfg.model, system || AI_SYSTEM, user);
   const obj = parseLoose(text);
   if (!obj || typeof obj !== 'object') throw { kind: 'ai', code: 'json' };
   return obj;
@@ -1182,6 +1199,23 @@ function factsPrompt(cands) {
     'JSON: {"facts": [{"id": "W123", "fact": "..."}]}', '',
     'Articoli:', aiArticleLines(cands, 1100)
   ].join('\n');
+}
+
+const GLOSS_SYSTEM = "Sei un traduttore scientifico dall'inglese all'italiano, preciso e conciso. Traduci tenendo conto della frase e del campo di studio. Rispondi esclusivamente con un oggetto JSON valido nel formato richiesto, senza testo prima o dopo.";
+function glossPrompt(info) {
+  return [
+    "Uno studente italiano sta leggendo un testo scientifico in inglese e ha selezionato un'espressione.",
+    'Espressione selezionata: """' + info.term + '"""',
+    'Frase in cui compare: """' + info.sentence + '"""',
+    info.title ? "Titolo dell'articolo: \"\"\"" + info.title + '"""' : null,
+    '',
+    'Rispondi con questo JSON:',
+    '{"traduzione": "...", "spiegazione": null, "frase": "..."}',
+    '- traduzione: la traduzione italiana più adatta in questo contesto. Poche parole; al massimo due alternative separate da virgola.',
+    "- spiegazione: solo se l'espressione è tecnica, gergale o ambigua, una frase breve in italiano che spiega cosa significa qui. Altrimenti null.",
+    '- frase: la traduzione italiana fedele della frase, senza aggiungere né togliere informazioni.',
+    'Se non sei sicuro del significato, dillo nella spiegazione invece di inventare.'
+  ].filter(x => x !== null).join('\n');
 }
 
 /* =========================================================
@@ -1355,6 +1389,7 @@ function entryEl(item, ctx, opts = {}) {
   if (lab && !opts.noLabel) art.append(el('p', 'entry-topic', lab));
 
   const h = el('h2', 'entry-title');
+  h.lang = 'en';
   const a = el('a', null, item.title || 'Senza titolo');
   a.href = safeUrl(item.url) || '#'; a.target = '_blank'; a.rel = 'noopener';
   h.append(a); art.append(h);
@@ -1608,11 +1643,13 @@ function syncPin(b, fav) {
   b.textContent = on ? 'Nei preferiti' : 'Aggiungi ai preferiti';
   b.setAttribute('aria-pressed', String(on));
 }
-function nodeHead({ title, desc, sub, keywords, fav, href }) {
+function nodeHead({ title, desc, sub, keywords, fav, href, en }) {
   const box = el('div', 'node');
-  box.append(el('h2', null, title));
+  const h = el('h2', null, title);
+  if (en) h.lang = 'en';
+  box.append(h);
   if (sub) box.append(el('p', null, sub));
-  if (desc) { const p = el('p', null, desc); box.append(p); }
+  if (desc) { const p = el('p', null, desc); if (en) p.lang = 'en'; box.append(p); }
   if (keywords && keywords.length) box.append(el('p', 'note', 'Parole chiave: ' + keywords.slice(0, 8).join(', ') + '.'));
   const act = el('div', 'actions');
   if (href) { const a = el('a', 'btn solid', 'Mostra articoli'); a.href = href; act.append(a); }
@@ -1753,7 +1790,7 @@ async function renderEsplora(parts) {
       if (t.subId) trail.push([subIt(t.subName), '#esplora/s/' + t.subId]);
       crumbs([...trail, [t.name]]);
       const fav = { id: 'tp-' + t.id, kind: 'topic', oa: t.id, name: t.name };
-      head.append(nodeHead({ title: t.name, desc: t.desc, keywords: t.keywords, fav }));
+      head.append(nodeHead({ title: t.name, desc: t.desc, keywords: t.keywords, fav, en: true }));
       exArticles(fav);
     } catch (e) { fail(e); }
     return;
@@ -2439,6 +2476,157 @@ function saveKey(value) {
   if (apiKey) { keyless = false; store.set('wk-keyless', false); }
 }
 
+
+/* =========================================================
+   Translate in context: select English text, tap "Traduci"
+   ========================================================= */
+const gloss = { cur: null, timer: 0, gen: 0 };
+let glossCache = store.get('wk-gloss', null) || {};
+
+function sentenceAround(text, a, b) {
+  const re = /[.!?]["')\]]?\s+(?=["'(\[]?[A-Z0-9])/g;
+  let start = 0, end = text.length, m;
+  while ((m = re.exec(text))) {
+    const cut = m.index + m[0].length;
+    if (cut <= a) start = cut;
+    else if (m.index >= b) { end = m.index + 1; break; }
+  }
+  let s = text.slice(start, end).replace(/\s+/g, ' ').trim();
+  if (s.length > 700) {
+    const from = Math.max(0, a - start - 300);
+    s = (from ? '…' : '') + text.slice(start + from, Math.min(end, start + from + 700)).replace(/\s+/g, ' ').trim() + '…';
+  }
+  return s;
+}
+function selectionInfo() {
+  const sel = window.getSelection && window.getSelection();
+  if (!sel || sel.isCollapsed || !sel.rangeCount) return null;
+  const raw = sel.toString();
+  const term = raw.replace(/\s+/g, ' ').trim();
+  if (term.length < 2 || term.length > 120 || !/[a-z]/i.test(term)) return null;
+  const range = sel.getRangeAt(0);
+  let node = range.commonAncestorContainer;
+  if (node && node.nodeType !== 1) node = node.parentElement;
+  const host = node && node.closest && node.closest('[lang="en"]');
+  if (!host || !host.contains(range.startContainer) || !host.contains(range.endContainer)) return null;
+  const pre = document.createRange();
+  pre.selectNodeContents(host);
+  pre.setEnd(range.startContainer, range.startOffset);
+  const a = pre.toString().length;
+  const sentence = sentenceAround(host.textContent || '', a, a + raw.length);
+  const holder = host.closest('.entry, .node');
+  const titleEl = holder && holder.querySelector('.entry-title, h2');
+  const title = titleEl && titleEl !== host ? titleEl.textContent.trim() : '';
+  const rects = range.getClientRects();
+  const last = rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
+  const first = rects.length ? rects[0] : last;
+  return { term, sentence, title, last, first };
+}
+function hideGlossBtn() { $('#gloss-btn').hidden = true; }
+function updateGlossBtn() {
+  const card = $('#gloss');
+  const info = selectionInfo();
+  if (!info || !card.hidden) { hideGlossBtn(); if (!info) gloss.cur = null; return; }
+  gloss.cur = info;
+  const b = $('#gloss-btn');
+  b.hidden = false;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const bw = b.offsetWidth || 110, bh = b.offsetHeight || 42;
+  const limit = vh - ($('.tabs').offsetHeight || 62) - 8;
+  let top = info.last.bottom + 14;
+  if (top + bh > limit) top = info.first.top - bh - 14;
+  top = Math.min(Math.max(8, top), limit - bh);
+  let left = info.last.left + info.last.width / 2 - bw / 2;
+  left = Math.min(Math.max(8, left), vw - bw - 8);
+  b.style.top = Math.round(top) + 'px';
+  b.style.left = Math.round(left) + 'px';
+}
+function closeGloss() {
+  gloss.gen++;
+  $('#gloss').hidden = true;
+  hideGlossBtn();
+}
+function wordRefUrl(term) { return 'https://www.wordreference.com/enit/' + encodeURIComponent(term.toLowerCase()); }
+function glossFoot(term) {
+  const act = el('div', 'actions');
+  act.append(linkBtn('Dizionario WordReference', wordRefUrl(term)));
+  const c = btn('Chiudi', 'btn');
+  c.onclick = closeGloss;
+  act.append(c);
+  return act;
+}
+function renderGlossResult(info, r) {
+  const body = $('#gloss-body');
+  body.textContent = '';
+  body.append(el('p', 'gloss-tr', r.tr));
+  if (r.ex) body.append(el('p', 'gloss-ex', r.ex));
+  if (r.fr) {
+    const p = el('p', 'gloss-fr');
+    p.append(el('b', null, 'Nella frase: '), r.fr);
+    body.append(p);
+  }
+  body.append(el('p', 'note', "Traduzione dell'AI, fatta tenendo conto della frase."));
+  body.append(glossFoot(info.term));
+}
+async function openGloss(info) {
+  if (!info) return;
+  const gen = ++gloss.gen;
+  hideGlossBtn();
+  $('#gloss-term').textContent = info.term;
+  const body = $('#gloss-body');
+  body.textContent = '';
+  $('#gloss').hidden = false;
+  if (!aiReady()) {
+    const p = el('p', 'gloss-ex');
+    p.append('Per una traduzione che tiene conto della frase, ');
+    const a = el('a', null, "collega l'assistente AI");
+    a.href = '#impostazioni/ai';
+    p.append(a, ' nelle Impostazioni. Intanto puoi usare il dizionario.');
+    body.append(p, glossFoot(info.term));
+    return;
+  }
+  const key = info.term.toLowerCase() + '|' + info.sentence;
+  if (glossCache[key]) { renderGlossResult(info, glossCache[key]); return; }
+  body.append(el('p', 'gloss-ex', 'Traduco…'));
+  try {
+    const out = await aiJSON(glossPrompt(info), GLOSS_SYSTEM);
+    if (gen !== gloss.gen) return;
+    const str = (v, n) => (typeof v === 'string' && v.trim() ? trunc(v.trim(), n) : '');
+    const r = { tr: str(out.traduzione, 200), ex: str(out.spiegazione, 400), fr: str(out.frase, 1000), t: Date.now() };
+    if (!r.tr) throw { kind: 'ai', code: 'json' };
+    glossCache[key] = r;
+    const keys = Object.keys(glossCache);
+    if (keys.length > 150) {
+      keys.sort((x, y) => (glossCache[x].t || 0) - (glossCache[y].t || 0)).slice(0, keys.length - 150).forEach(k => delete glossCache[k]);
+    }
+    store.set('wk-gloss', glossCache);
+    renderGlossResult(info, r);
+  } catch (e) {
+    if (gen !== gloss.gen) return;
+    body.textContent = '';
+    body.append(el('p', 'gloss-ex', errorCopy(e)), glossFoot(info.term));
+  }
+}
+function wireGloss() {
+  const b = $('#gloss-btn');
+  b.addEventListener('pointerdown', e => e.preventDefault());
+  b.addEventListener('mousedown', e => e.preventDefault());
+  b.onclick = () => openGloss(gloss.cur || selectionInfo());
+  $('#gloss-x').onclick = closeGloss;
+  document.addEventListener('selectionchange', () => { clearTimeout(gloss.timer); gloss.timer = setTimeout(updateGlossBtn, 250); });
+  window.addEventListener('scroll', () => {
+    if (!$('#gloss-btn').hidden) hideGlossBtn();
+    clearTimeout(gloss.timer);
+    gloss.timer = setTimeout(updateGlossBtn, 350);
+  }, { passive: true });
+  window.addEventListener('resize', () => { clearTimeout(gloss.timer); gloss.timer = setTimeout(updateGlossBtn, 350); });
+  document.addEventListener('pointerdown', e => {
+    const card = $('#gloss');
+    if (!card.hidden && !card.contains(e.target) && e.target !== b) closeGloss();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#gloss').hidden) closeGloss(); });
+}
+
 /* =========================================================
    Router
    ========================================================= */
@@ -2454,6 +2642,7 @@ let curHash = null;
 const scrollMem = {};
 function route() {
   if (curHash !== null) scrollMem[curHash] = window.scrollY;
+  closeGloss();
   const hash = location.hash || '#feed';
   const parts = parseRoute(), view = currentView();
   for (const v of VIEWS) $('#view-' + v).hidden = v !== view;
@@ -2604,7 +2793,7 @@ function wire() {
   $('#s-theme').onchange = e => { store.set('wk-theme', e.target.value); applyTheme(e.target.value); };
   $('#s-wipe').onclick = () => {
     if (!confirm('Cancellare letti, salvati, valutazioni, preferiti, chiavi e collegamento a GitHub da questo dispositivo?')) return;
-    for (const k of ['wk-state', 'wk-key', 'wk-keyless', 'wk-gh', 'wk-meta', 'wk-theme', 'wk-ai', 'wk-tax']) store.del(k);
+    for (const k of ['wk-state', 'wk-key', 'wk-keyless', 'wk-gh', 'wk-meta', 'wk-theme', 'wk-ai', 'wk-tax', 'wk-gloss']) store.del(k);
     location.hash = '#feed';
     location.reload();
   };
@@ -2632,6 +2821,7 @@ async function start() {
     renderControls();
     renderCercaControls();
     wire();
+    wireGloss();
     route();
     drawFern(true);
     updateOnboard();
